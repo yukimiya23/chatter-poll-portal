@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useChat } from '../contexts/ChatContext';
-import { Button, Form, ListGroup } from 'react-bootstrap';
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
 
 const ChatRoom: React.FC = () => {
   const [message, setMessage] = useState('');
@@ -22,36 +24,41 @@ const ChatRoom: React.FC = () => {
   };
 
   return (
-    <div className="container mt-3">
-      <h2 className="mb-3">Chat Room</h2>
-      <div className="chat-messages mb-3" style={{ height: '400px', overflowY: 'auto' }}>
-        <ListGroup>
-          {messages.map((msg, index) => (
-            <ListGroup.Item 
-              key={index} 
-              className={msg.username === user?.username ? 'text-end' : ''}
-              style={{ backgroundColor: msg.username === 'System' ? '#f8d7da' : 'inherit' }}
-            >
-              <strong>{msg.username}: </strong>{msg.text}
-            </ListGroup.Item>
-          ))}
-        </ListGroup>
-        <div ref={messagesEndRef} />
-      </div>
-      <Form onSubmit={handleSubmit}>
-        <Form.Group className="mb-3" controlId="formMessage">
-          <Form.Control
-            type="text"
-            placeholder="Type a message..."
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-          />
-        </Form.Group>
-        <Button variant="primary" type="submit">
-          Send
-        </Button>
-      </Form>
-    </div>
+    <Card className="w-full max-w-md mx-auto">
+      <CardContent>
+        <div className="flex flex-col h-[500px]">
+          <div className="flex-1 overflow-y-auto mb-4 space-y-4">
+            {messages.map((msg, index) => (
+              <div
+                key={index}
+                className={`flex ${msg.username === user?.username ? 'justify-end' : 'justify-start'}`}
+              >
+                <div
+                  className={`max-w-[70%] rounded-lg p-2 ${
+                    msg.username === user?.username
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-gray-200 text-black'
+                  }`}
+                >
+                  {msg.text}
+                </div>
+              </div>
+            ))}
+            <div ref={messagesEndRef} />
+          </div>
+          <form onSubmit={handleSubmit} className="flex space-x-2">
+            <Input
+              type="text"
+              placeholder="Type a message..."
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              className="flex-1"
+            />
+            <Button type="submit">Send</Button>
+          </form>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { usePoll } from '../contexts/PollContext';
-import { Button, Form, ProgressBar } from 'react-bootstrap';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Progress } from "@/components/ui/progress"
 
 const PollSystem: React.FC = () => {
   const [question, setQuestion] = useState('');
@@ -22,27 +25,30 @@ const PollSystem: React.FC = () => {
     }
   };
 
+  const totalVotes = currentPoll
+    ? currentPoll.options.reduce((sum, opt) => sum + opt.votes, 0)
+    : 0;
+
   return (
-    <div className="container mt-3">
-      <h2 className="mb-3">Polling System</h2>
-      {!currentPoll ? (
-        <Form onSubmit={handleCreatePoll}>
-          <Form.Group className="mb-3" controlId="formQuestion">
-            <Form.Label>Poll Question</Form.Label>
-            <Form.Control
+    <Card className="w-full max-w-md mx-auto">
+      <CardHeader>
+        <CardTitle>{currentPoll ? 'Current Poll' : 'Create a Poll'}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        {!currentPoll ? (
+          <form onSubmit={handleCreatePoll} className="space-y-4">
+            <Input
               type="text"
               placeholder="Enter your question"
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               required
             />
-          </Form.Group>
-          {options.map((option, index) => (
-            <Form.Group key={index} className="mb-3" controlId={`formOption${index}`}>
-              <Form.Label>Option {index + 1}</Form.Label>
-              <Form.Control
+            {options.map((option, index) => (
+              <Input
+                key={index}
                 type="text"
-                placeholder={`Enter option ${index + 1}`}
+                placeholder={`Option ${index + 1}`}
                 value={option}
                 onChange={(e) => {
                   const newOptions = [...options];
@@ -51,38 +57,33 @@ const PollSystem: React.FC = () => {
                 }}
                 required
               />
-            </Form.Group>
-          ))}
-          <Button variant="secondary" onClick={() => setOptions([...options, ''])}>
-            Add Option
-          </Button>
-          <Button variant="primary" type="submit" className="ms-2">
-            Create Poll
-          </Button>
-        </Form>
-      ) : (
-        <div>
-          <h3>{currentPoll.question}</h3>
-          {currentPoll.options.map((option, index) => (
-            <div key={index} className="mb-2">
-              <ProgressBar
-                now={option.votes}
-                label={`${option.text} (${option.votes})`}
-                max={currentPoll.options.reduce((sum, opt) => sum + opt.votes, 0)}
-              />
-              <Button
-                variant="outline-primary"
-                size="sm"
-                onClick={() => handleVote(index)}
-                className="mt-1"
-              >
-                Vote
+            ))}
+            <div className="flex space-x-2">
+              <Button type="button" onClick={() => setOptions([...options, ''])}>
+                Add Option
               </Button>
+              <Button type="submit">Create Poll</Button>
             </div>
-          ))}
-        </div>
-      )}
-    </div>
+          </form>
+        ) : (
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">{currentPoll.question}</h3>
+            {currentPoll.options.map((option, index) => (
+              <div key={index} className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span>{option.text}</span>
+                  <span>{option.votes} votes</span>
+                </div>
+                <Progress value={(option.votes / totalVotes) * 100} />
+                <Button onClick={() => handleVote(index)} variant="outline" size="sm">
+                  Vote
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 };
 

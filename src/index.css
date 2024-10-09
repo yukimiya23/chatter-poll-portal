@@ -1,4 +1,6 @@
-@import 'bootstrap/dist/css/bootstrap.min.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 body {
   margin: 0;
@@ -10,28 +12,17 @@ body {
 }
 
 .dark {
-  background-color: #333;
-  color: #fff;
+  @apply bg-gray-900 text-white;
 }
 
-.dark .card,
-.dark .list-group-item {
-  background-color: #444;
-  color: #fff;
+.dark .card {
+  @apply bg-gray-800;
 }
 
-.dark .form-control {
-  background-color: #555;
-  color: #fff;
-  border-color: #666;
+.dark .input {
+  @apply bg-gray-700 text-white border-gray-600;
 }
 
-.dark .btn-primary {
-  background-color: #0056b3;
-  border-color: #004085;
-}
-
-.dark .btn-secondary {
-  background-color: #5a6268;
-  border-color: #545b62;
+.dark .button {
+  @apply bg-blue-600 hover:bg-blue-700;
 }

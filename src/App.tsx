@@ -1,6 +1,5 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
-import { Container } from 'react-bootstrap';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ChatProvider } from './contexts/ChatContext';
 import { PollProvider } from './contexts/PollContext';
@@ -17,19 +16,15 @@ const PrivateRoute: React.FC<{ element: React.ReactElement }> = ({ element }) =>
 
 const MainContent: React.FC = () => {
   return (
-    <Container fluid>
-      <div className="d-flex justify-content-end mb-3">
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex justify-end mb-4">
         <DarkModeToggle />
       </div>
-      <div className="row">
-        <div className="col-md-8">
-          <ChatRoom />
-        </div>
-        <div className="col-md-4">
-          <PollSystem />
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <ChatRoom />
+        <PollSystem />
       </div>
-    </Container>
+    </div>
   );
 };
 
