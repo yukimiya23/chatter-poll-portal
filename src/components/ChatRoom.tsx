@@ -27,7 +27,11 @@ const ChatRoom: React.FC = () => {
       <div className="chat-messages mb-3" style={{ height: '400px', overflowY: 'auto' }}>
         <ListGroup>
           {messages.map((msg, index) => (
-            <ListGroup.Item key={index} className={msg.username === user?.username ? 'text-end' : ''}>
+            <ListGroup.Item 
+              key={index} 
+              className={msg.username === user?.username ? 'text-end' : ''}
+              style={{ backgroundColor: msg.username === 'System' ? '#f8d7da' : 'inherit' }}
+            >
               <strong>{msg.username}: </strong>{msg.text}
             </ListGroup.Item>
           ))}
