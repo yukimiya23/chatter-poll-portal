@@ -9,11 +9,6 @@ import ChatRoom from './components/ChatRoom';
 import PollSystem from './components/PollSystem';
 import DarkModeToggle from './components/DarkModeToggle';
 
-const PrivateRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
-  const { user } = useAuth();
-  return user ? element : <Navigate to="/login" />;
-};
-
 const MainContent: React.FC = () => {
   return (
     <div className="container mx-auto px-4 py-8">
@@ -28,6 +23,20 @@ const MainContent: React.FC = () => {
   );
 };
 
+const AppRoutes: React.FC = () => {
+  const { user } = useAuth();
+
+  return (
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route
+        path="/"
+        element={user ? <MainContent /> : <Navigate to="/login" />}
+      />
+    </Routes>
+  );
+};
+
 const App: React.FC = () => {
   return (
     <Router>
@@ -35,13 +44,7 @@ const App: React.FC = () => {
         <ChatProvider>
           <PollProvider>
             <ThemeProvider>
-              <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route
-                  path="/"
-                  element={<PrivateRoute element={<MainContent />} />}
-                />
-              </Routes>
+              <AppRoutes />
             </ThemeProvider>
           </PollProvider>
         </ChatProvider>
