@@ -13,12 +13,16 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(() => {
+    const storedUser = localStorage.getItem('user');
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
 
   const login = async (username: string, password: string) => {
-    // For demonstration purposes, we'll accept any non-empty username and password
     if (username.trim() && password.trim()) {
-      setUser({ username });
+      const newUser = { username };
+      setUser(newUser);
+      localStorage.setItem('user', JSON.stringify(newUser));
     } else {
       throw new Error('Invalid credentials');
     }
@@ -26,6 +30,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const logout = () => {
     setUser(null);
+    localStorage.removeItem('user');
   };
 
   return (
