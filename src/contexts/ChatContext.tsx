@@ -25,8 +25,20 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
 
     ws.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-      setMessages((prevMessages) => [...prevMessages, message]);
+      try {
+        // Try to parse the message as JSON
+        const message = JSON.parse(event.data);
+        setMessages((prevMessages) => [...prevMessages, message]);
+      } catch (error) {
+        // If parsing fails, treat it as a system message
+        console.log('Received non-JSON message:', event.data);
+        if (typeof event.data === 'string') {
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            { username: 'System', text: event.data }
+          ]);
+        }
+      }
     };
 
     ws.onerror = (error) => {
