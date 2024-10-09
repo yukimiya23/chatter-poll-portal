@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
-import { Container, Row, Col } from 'react-bootstrap';
+import { Container } from 'react-bootstrap';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ChatProvider } from './contexts/ChatContext';
 import { PollProvider } from './contexts/PollContext';
@@ -15,6 +15,24 @@ const PrivateRoute: React.FC<{ element: React.ReactElement }> = ({ element }) =>
   return user ? element : <Navigate to="/login" />;
 };
 
+const MainContent: React.FC = () => {
+  return (
+    <Container fluid>
+      <div className="d-flex justify-content-end mb-3">
+        <DarkModeToggle />
+      </div>
+      <div className="row">
+        <div className="col-md-8">
+          <ChatRoom />
+        </div>
+        <div className="col-md-4">
+          <PollSystem />
+        </div>
+      </div>
+    </Container>
+  );
+};
+
 const App: React.FC = () => {
   return (
     <Router>
@@ -22,33 +40,13 @@ const App: React.FC = () => {
         <ChatProvider>
           <PollProvider>
             <ThemeProvider>
-              <Container fluid>
-                <Row className="mb-3">
-                  <Col>
-                    <DarkModeToggle />
-                  </Col>
-                </Row>
-                <Routes>
-                  <Route path="/login" element={<Login />} />
-                  <Route
-                    path="/"
-                    element={
-                      <PrivateRoute
-                        element={
-                          <Row>
-                            <Col md={8}>
-                              <ChatRoom />
-                            </Col>
-                            <Col md={4}>
-                              <PollSystem />
-                            </Col>
-                          </Row>
-                        }
-                      />
-                    }
-                  />
-                </Routes>
-              </Container>
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route
+                  path="/"
+                  element={<PrivateRoute element={<MainContent />} />}
+                />
+              </Routes>
             </ThemeProvider>
           </PollProvider>
         </ChatProvider>
