@@ -25,23 +25,40 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
 
     ws.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-      setMessages((prevMessages) => [...prevMessages, message]);
+      try {
+        const message = JSON.parse(event.data);
+        setMessages((prevMessages) => [...prevMessages, message]);
+      } catch (error) {
+        console.error('Error parsing WebSocket message:', error);
+        // Handle non-JSON messages
+        setMessages((prevMessages) => [...prevMessages, { username: 'System', text: event.data }]);
+      }
     };
 
     ws.onerror = (error) => {
       console.error('WebSocket error:', error);
     };
 
+    ws.onclose = () => {
+      console.log('WebSocket disconnected');
+      // Attempt to reconnect after a delay
+      setTimeout(() => {
+        console.log('Attempting to reconnect...');
+        setSocket(null);
+      }, 5000);
+    };
+
     return () => {
       ws.close();
     };
-  }, []);
+  }, [socket]);
 
   const sendMessage = (text: string, username: string) => {
-    if (socket) {
+    if (socket && socket.readyState === WebSocket.OPEN) {
       const message = { username, text };
       socket.send(JSON.stringify(message));
+    } else {
+      console.error('WebSocket is not connected');
     }
   };
 
