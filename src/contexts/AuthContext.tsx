@@ -16,8 +16,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [user, setUser] = useState<User | null>(null);
 
   const login = async (username: string, password: string) => {
-    // Mock login - replace with actual authentication logic
-    if (password === 'password') {
+    // For demonstration purposes, we'll accept any non-empty username and password
+    if (username.trim() && password.trim()) {
       setUser({ username });
     } else {
       throw new Error('Invalid credentials');

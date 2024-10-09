@@ -19,6 +19,7 @@ const Login: React.FC = () => {
       navigate('/');
     } catch (err) {
       console.error('Login failed:', err);
+      alert('Login failed. Please check your credentials.');
     }
   };
 
