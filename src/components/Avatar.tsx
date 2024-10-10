@@ -2,19 +2,18 @@ import React from 'react';
 
 interface AvatarProps {
   username: string;
+  size?: number;
 }
 
-const Avatar: React.FC<AvatarProps> = ({ username }) => {
-  const initials = username.slice(0, 2).toUpperCase();
-  const color = `hsl(${username.charCodeAt(0) * 10}, 70%, 50%)`;
+const Avatar: React.FC<AvatarProps> = ({ username, size = 8 }) => {
+  const avatarUrl = `https://api.dicebear.com/6.x/initials/svg?seed=${username}`;
 
   return (
-    <div
-      className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-semibold mx-2"
-      style={{ backgroundColor: color }}
-    >
-      {initials}
-    </div>
+    <img
+      src={avatarUrl}
+      alt={username}
+      className={`w-${size} h-${size} rounded-full`}
+    />
   );
 };
 
