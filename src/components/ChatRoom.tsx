@@ -51,9 +51,9 @@ const ChatRoom: React.FC = () => {
             <div className={`flex ${msg.username === user?.username ? 'flex-row-reverse' : 'flex-row'} items-end max-w-[70%]`}>
               <Avatar className="w-8 h-8">
                 {msg.avatar ? (
-                  <AvatarImage src={msg.avatar} alt={msg.nickname} />
+                  <AvatarImage src={msg.avatar} alt={msg.nickname || msg.username} />
                 ) : (
-                  <AvatarFallback>{msg.nickname.charAt(0)}</AvatarFallback>
+                  <AvatarFallback>{(msg.nickname || msg.username || '?').charAt(0)}</AvatarFallback>
                 )}
               </Avatar>
               <div
@@ -63,7 +63,7 @@ const ChatRoom: React.FC = () => {
                     : 'bg-white text-black rounded-bl-none'
                 }`}
               >
-                <p className="text-xs font-semibold mb-1">{msg.nickname}</p>
+                <p className="text-xs font-semibold mb-1">{msg.nickname || msg.username}</p>
                 <p className="text-sm">{msg.text}</p>
                 <p className="text-xs opacity-70 mt-1">{new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
               </div>
