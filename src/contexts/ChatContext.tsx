@@ -2,13 +2,14 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 
 interface Message {
   username: string;
+  nickname: string;
   text: string;
   timestamp: number;
 }
 
 interface ChatContextType {
   messages: Message[];
-  sendMessage: (text: string, username: string) => void;
+  sendMessage: (text: string, username: string, nickname: string) => void;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -23,8 +24,8 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     localStorage.setItem('chatMessages', JSON.stringify(messages));
   }, [messages]);
 
-  const sendMessage = (text: string, username: string) => {
-    const newMessage = { username, text, timestamp: Date.now() };
+  const sendMessage = (text: string, username: string, nickname: string) => {
+    const newMessage = { username, nickname, text, timestamp: Date.now() };
     setMessages((prevMessages) => [...prevMessages, newMessage]);
   };
 

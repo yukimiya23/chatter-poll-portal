@@ -19,7 +19,7 @@ const ChatRoom: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (message.trim() && user) {
-      sendMessage(message, user.username);
+      sendMessage(message, user.username, user.nickname || user.username);
       setMessage('');
     }
   };
@@ -58,6 +58,7 @@ const ChatRoom: React.FC = () => {
                     : 'bg-white text-black rounded-bl-none'
                 }`}
               >
+                <p className="text-xs font-semibold mb-1">{msg.nickname}</p>
                 <p className="text-sm">{msg.text}</p>
                 <p className="text-xs opacity-70 mt-1">{new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
               </div>
