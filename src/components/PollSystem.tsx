@@ -10,7 +10,7 @@ const PollSystem: React.FC = () => {
   const [question, setQuestion] = useState('');
   const [options, setOptions] = useState(['', '']);
   const { user } = useAuth();
-  const { currentPoll, createPoll, vote } = usePoll();
+  const { currentPoll, createPoll, vote, unvote } = usePoll();
 
   const handleCreatePoll = (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,6 +22,12 @@ const PollSystem: React.FC = () => {
   const handleVote = (optionIndex: number) => {
     if (user && currentPoll) {
       vote(currentPoll.id, optionIndex, user.username);
+    }
+  };
+
+  const handleUnvote = (optionIndex: number) => {
+    if (user && currentPoll) {
+      unvote(currentPoll.id, optionIndex, user.username);
     }
   };
 
@@ -75,9 +81,14 @@ const PollSystem: React.FC = () => {
                   <span>{option.votes} votes</span>
                 </div>
                 <Progress value={(option.votes / totalVotes) * 100} />
-                <Button onClick={() => handleVote(index)} variant="outline" size="sm">
-                  Vote
-                </Button>
+                <div className="flex space-x-2">
+                  <Button onClick={() => handleVote(index)} variant="outline" size="sm">
+                    Vote
+                  </Button>
+                  <Button onClick={() => handleUnvote(index)} variant="outline" size="sm">
+                    Unvote
+                  </Button>
+                </div>
               </div>
             ))}
           </div>
