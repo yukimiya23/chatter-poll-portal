@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface User {
   username: string;
@@ -17,6 +18,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const storedUser = localStorage.getItem('user');
     return storedUser ? JSON.parse(storedUser) : null;
   });
+  const navigate = useNavigate();
 
   const login = async (username: string, password: string) => {
     if (username.trim() && password.trim()) {
@@ -31,6 +33,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const logout = () => {
     setUser(null);
     localStorage.removeItem('user');
+    navigate('/login');
   };
 
   return (

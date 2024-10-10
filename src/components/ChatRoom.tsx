@@ -4,11 +4,11 @@ import { useChat } from '../contexts/ChatContext';
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { FiPaperclip, FiSend } from 'react-icons/fi';
+import { FiPaperclip, FiSend, FiLogOut } from 'react-icons/fi';
 
 const ChatRoom: React.FC = () => {
   const [message, setMessage] = useState('');
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { messages, sendMessage } = useChat();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -24,18 +24,20 @@ const ChatRoom: React.FC = () => {
     }
   };
 
+  const handleLogout = () => {
+    logout();
+  };
+
   return (
     <Card className="w-full h-[600px] flex flex-col bg-gray-100">
       <div className="bg-white p-4 border-b border-gray-200 flex justify-between items-center">
-        <h2 className="text-xl font-semibold">RoomName</h2>
+        <h2 className="text-xl font-semibold">Chat Room</h2>
         <div className="flex space-x-2">
           <Button variant="ghost" size="icon">
             <FiPaperclip className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
-              <path d="M3 10a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zM8.5 10a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zM15.5 8.5a1.5 1.5 0 100 3 1.5 1.5 0 000-3z" />
-            </svg>
+          <Button variant="ghost" size="icon" onClick={handleLogout}>
+            <FiLogOut className="h-4 w-4" />
           </Button>
         </div>
       </div>
