@@ -3,12 +3,22 @@ import { useNavigate } from 'react-router-dom';
 
 interface User {
   username: string;
+  firstName?: string;
+  lastName?: string;
+  nickname?: string;
+}
+
+interface UserDetails {
+  firstName: string;
+  lastName: string;
+  nickname: string;
 }
 
 interface AuthContextType {
   user: User | null;
   login: (username: string, password: string) => Promise<void>;
   logout: () => void;
+  updateUserDetails: (details: UserDetails) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -36,8 +46,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     navigate('/login');
   };
 
+  const updateUserDetails = (details: UserDetails) => {
+    if (user) {
+      const updatedUser = { ...user, ...details };
+      setUser(updatedUser);
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, updateUserDetails }}>
       {children}
     </AuthContext.Provider>
   );

@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ChatProvider } from './contexts/ChatContext';
 import { PollProvider } from './contexts/PollContext';
 import Login from './components/Login';
+import UserDetails from './components/UserDetails';
 import ChatRoom from './components/ChatRoom';
 import PollSystem from './components/PollSystem';
 
@@ -31,6 +32,7 @@ const AppRoutes: React.FC = () => {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/user-details" element={<UserDetails />} />
       <Route path="/" element={<PrivateRoute element={<MainContent />} />} />
     </Routes>
   );
