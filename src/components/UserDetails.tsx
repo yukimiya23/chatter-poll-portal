@@ -51,7 +51,7 @@ const UserDetails: React.FC = () => {
               accept="image/*"
               className="hidden"
             />
-            <Button type="button" variant="outline" size="sm" className="mt-2" onClick={() => fileInputRef.current?.click()}>
+            <Button type="button" variant="outline" size="sm" className="mt-2 bg-purple-500 text-white hover:bg-purple-600" onClick={() => fileInputRef.current?.click()}>
               Upload Avatar
             </Button>
           </div>
