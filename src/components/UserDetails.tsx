@@ -1,20 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 
 const UserDetails: React.FC = () => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [nickname, setNickname] = useState('');
+  const [avatar, setAvatar] = useState<string | null>(null);
   const { updateUserDetails } = useAuth();
   const navigate = useNavigate();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    updateUserDetails({ firstName, lastName, nickname });
+    updateUserDetails({ firstName, lastName, nickname, avatar });
     navigate('/');
+  };
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatar(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   return (
@@ -22,6 +36,25 @@ const UserDetails: React.FC = () => {
       <div className="w-full max-w-md p-8 space-y-8 bg-gray-800 rounded-lg shadow-lg">
         <h2 className="text-3xl font-bold text-center text-white">User Details</h2>
         <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="flex flex-col items-center">
+            <Avatar className="w-24 h-24 cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+              {avatar ? (
+                <AvatarImage src={avatar} alt="User avatar" />
+              ) : (
+                <AvatarFallback>{nickname?.charAt(0) || 'U'}</AvatarFallback>
+              )}
+            </Avatar>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleAvatarChange}
+              accept="image/*"
+              className="hidden"
+            />
+            <Button type="button" variant="outline" size="sm" className="mt-2" onClick={() => fileInputRef.current?.click()}>
+              Upload Avatar
+            </Button>
+          </div>
           <Input
             type="text"
             placeholder="First Name"

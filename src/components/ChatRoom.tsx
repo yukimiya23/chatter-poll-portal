@@ -4,6 +4,7 @@ import { useChat } from '../contexts/ChatContext';
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { FiPaperclip, FiSend, FiLogOut } from 'react-icons/fi';
 
 const ChatRoom: React.FC = () => {
@@ -19,7 +20,7 @@ const ChatRoom: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (message.trim() && user) {
-      sendMessage(message, user.username, user.nickname || user.username);
+      sendMessage(message, user.username, user.nickname || user.username, user.avatar || null);
       setMessage('');
     }
   };
@@ -48,11 +49,15 @@ const ChatRoom: React.FC = () => {
             className={`flex ${msg.username === user?.username ? 'justify-end' : 'justify-start'}`}
           >
             <div className={`flex ${msg.username === user?.username ? 'flex-row-reverse' : 'flex-row'} items-end max-w-[70%]`}>
-              {msg.username !== user?.username && (
-                <img src={`https://api.dicebear.com/6.x/initials/svg?seed=${msg.username}`} alt={msg.username} className="w-8 h-8 rounded-full mr-2" />
-              )}
+              <Avatar className="w-8 h-8">
+                {msg.avatar ? (
+                  <AvatarImage src={msg.avatar} alt={msg.nickname} />
+                ) : (
+                  <AvatarFallback>{msg.nickname.charAt(0)}</AvatarFallback>
+                )}
+              </Avatar>
               <div
-                className={`rounded-2xl p-3 ${
+                className={`rounded-2xl p-3 mx-2 ${
                   msg.username === user?.username
                     ? 'bg-blue-500 text-white rounded-br-none'
                     : 'bg-white text-black rounded-bl-none'

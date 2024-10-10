@@ -6,12 +6,14 @@ interface User {
   firstName?: string;
   lastName?: string;
   nickname?: string;
+  avatar?: string | null;
 }
 
 interface UserDetails {
   firstName: string;
   lastName: string;
   nickname: string;
+  avatar: string | null;
 }
 
 interface AuthContextType {
