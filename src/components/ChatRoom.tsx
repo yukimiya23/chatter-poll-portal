@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import { FiPaperclip, FiSend } from 'react-icons/fi';
+import { FiSend } from 'react-icons/fi';
 import NavBar from './NavBar';
 
 const ChatRoom: React.FC = () => {

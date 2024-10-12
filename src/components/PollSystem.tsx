@@ -5,8 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Progress } from "@/components/ui/progress"
+import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-const PollSystem: React.FC = () => {
+interface PollSystemProps {
+  onClose: () => void;
+}
+
+const PollSystem: React.FC<PollSystemProps> = ({ onClose }) => {
   const [question, setQuestion] = useState('');
   const [options, setOptions] = useState(['', '']);
   const { user } = useAuth();
@@ -35,10 +40,13 @@ const PollSystem: React.FC = () => {
     ? currentPoll.options.reduce((sum, opt) => sum + opt.votes, 0)
     : 0;
 
+  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'];
+
   return (
     <Card className="w-full max-w-md mx-auto">
-      <CardHeader>
+      <CardHeader className="flex justify-between items-center">
         <CardTitle>{currentPoll ? 'Current Poll' : 'Create a Poll'}</CardTitle>
+        <Button onClick={onClose} variant="outline" size="sm">Close</Button>
       </CardHeader>
       <CardContent>
         {!currentPoll ? (
@@ -72,7 +80,7 @@ const PollSystem: React.FC = () => {
             </div>
           </form>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-6">
             <h3 className="text-lg font-semibold">{currentPoll.question}</h3>
             {currentPoll.options.map((option, index) => (
               <div key={index} className="space-y-2">
@@ -91,6 +99,40 @@ const PollSystem: React.FC = () => {
                 </div>
               </div>
             ))}
+            <div className="mt-8">
+              <h4 className="text-lg font-semibold mb-4">Results Visualization</h4>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={currentPoll.options}>
+                  <XAxis dataKey="text" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="votes" fill="#8884d8" />
+                </BarChart>
+              </ResponsiveContainer>
+              <div className="mt-8">
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
+                    <Pie
+                      data={currentPoll.options}
+                      dataKey="votes"
+                      nameKey="text"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={80}
+                      fill="#8884d8"
+                      label
+                    >
+                      {currentPoll.options.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
           </div>
         )}
       </CardContent>
