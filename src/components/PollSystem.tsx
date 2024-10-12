@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Progress } from "@/components/ui/progress"
-import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface PollSystemProps {
   onClose: () => void;
@@ -40,13 +39,17 @@ const PollSystem: React.FC<PollSystemProps> = ({ onClose }) => {
     ? currentPoll.options.reduce((sum, opt) => sum + opt.votes, 0)
     : 0;
 
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'];
+  const getPercentage = (votes: number) => {
+    return totalVotes > 0 ? Math.round((votes / totalVotes) * 100) : 0;
+  };
+
+  const COLORS = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'];
 
   return (
     <div className="fixed inset-0 bg-white dark:bg-gray-900 overflow-y-auto">
-      <Card className="w-full h-full max-w-6xl mx-auto p-6">
+      <Card className="w-full h-full max-w-3xl mx-auto p-6">
         <CardHeader className="flex justify-between items-center">
-          <CardTitle className="text-3xl font-bold">{currentPoll ? 'Current Poll' : 'Create a Poll'}</CardTitle>
+          <CardTitle className="text-3xl font-bold">{currentPoll ? currentPoll.question : 'Create a Poll'}</CardTitle>
           <Button onClick={onClose} variant="outline" size="lg">Close</Button>
         </CardHeader>
         <CardContent className="mt-8">
@@ -84,65 +87,32 @@ const PollSystem: React.FC<PollSystemProps> = ({ onClose }) => {
             </form>
           ) : (
             <div className="space-y-8">
-              <h3 className="text-2xl font-semibold mb-6">{currentPoll.question}</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-6">
-                  {currentPoll.options.map((option, index) => (
-                    <div key={index} className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="text-lg font-medium">{option.text}</span>
-                        <span className="text-lg font-bold">{option.votes} votes</span>
-                      </div>
-                      <Progress value={(option.votes / totalVotes) * 100} className="h-4" />
-                      <div className="flex space-x-2">
-                        <Button onClick={() => handleVote(index)} variant="outline" size="sm">
-                          Vote
-                        </Button>
-                        <Button onClick={() => handleUnvote(index)} variant="outline" size="sm">
-                          Unvote
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="space-y-8">
-                  <div>
-                    <h4 className="text-xl font-semibold mb-4">Bar Chart</h4>
-                    <ResponsiveContainer width="100%" height={300}>
-                      <BarChart data={currentPoll.options}>
-                        <XAxis dataKey="text" />
-                        <YAxis />
-                        <Tooltip />
-                        <Legend />
-                        <Bar dataKey="votes" fill="#8884d8" />
-                      </BarChart>
-                    </ResponsiveContainer>
+              {currentPoll.options.map((option, index) => (
+                <div key={index} className="space-y-2">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-lg font-medium">{option.text}</span>
+                    <span className="text-lg font-bold">{getPercentage(option.votes)}%</span>
                   </div>
-                  <div>
-                    <h4 className="text-xl font-semibold mb-4">Pie Chart</h4>
-                    <ResponsiveContainer width="100%" height={300}>
-                      <PieChart>
-                        <Pie
-                          data={currentPoll.options}
-                          dataKey="votes"
-                          nameKey="text"
-                          cx="50%"
-                          cy="50%"
-                          outerRadius={80}
-                          fill="#8884d8"
-                          label
-                        >
-                          {currentPoll.options.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                          ))}
-                        </Pie>
-                        <Tooltip />
-                        <Legend />
-                      </PieChart>
-                    </ResponsiveContainer>
+                  <div className="relative">
+                    <Progress 
+                      value={getPercentage(option.votes)} 
+                      className="h-8" 
+                      style={{backgroundColor: COLORS[index % COLORS.length]}}
+                    />
+                    <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-white font-bold">
+                      {option.votes} votes
+                    </span>
+                  </div>
+                  <div className="flex space-x-2 mt-2">
+                    <Button onClick={() => handleVote(index)} variant="outline" size="sm">
+                      Vote
+                    </Button>
+                    <Button onClick={() => handleUnvote(index)} variant="outline" size="sm">
+                      Unvote
+                    </Button>
                   </div>
                 </div>
-              </div>
+              ))}
             </div>
           )}
         </CardContent>
