@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { usePoll } from '../contexts/PollContext';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Progress } from "@/components/ui/progress"
@@ -63,7 +63,7 @@ const PollSystem: React.FC<PollSystemProps> = ({ onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-[#E2F1E7] overflow-y-auto">
-      <Card className="w-full h-full max-w-3xl mx-auto p-6 bg-[#243642] text-[#E2F1E7]">
+      <Card className="w-full h-full max-w-6xl mx-auto p-6 bg-[#243642] text-[#E2F1E7]">
         <CardHeader>
           <CardTitle className="text-3xl font-bold">{currentPoll ? currentPoll.question : 'Create a Poll'}</CardTitle>
         </CardHeader>
@@ -101,40 +101,43 @@ const PollSystem: React.FC<PollSystemProps> = ({ onClose }) => {
               </div>
             </form>
           ) : (
-            <div className="space-y-8">
-              {currentPoll.options.map((option, index) => (
-                <div key={index} className="space-y-2">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-lg font-medium">{option.text}</span>
-                    <span className="text-lg font-bold">{getPercentage(option.votes)}%</span>
+            <div className="flex flex-col md:flex-row space-y-8 md:space-y-0 md:space-x-8">
+              <div className="w-full md:w-1/2 space-y-8">
+                {currentPoll.options.map((option, index) => (
+                  <div key={index} className="space-y-2">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-lg font-medium">{option.text}</span>
+                      <span className="text-lg font-bold">{getPercentage(option.votes)}%</span>
+                    </div>
+                    <div className="relative">
+                      <Progress 
+                        value={getPercentage(option.votes)} 
+                        className="h-8" 
+                        style={{backgroundColor: COLORS[index % COLORS.length]}}
+                      />
+                      <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-[#243642] font-bold">
+                        {option.votes} votes
+                      </span>
+                    </div>
+                    <div className="flex space-x-2 mt-2">
+                      <Button onClick={() => handleVote(index)} variant="outline" size="sm" className="bg-[#387478] text-[#E2F1E7] hover:bg-[#629584]">
+                        Vote
+                      </Button>
+                      <Button onClick={() => handleUnvote(index)} variant="outline" size="sm" className="bg-[#387478] text-[#E2F1E7] hover:bg-[#629584]">
+                        Unvote
+                      </Button>
+                    </div>
                   </div>
-                  <div className="relative">
-                    <Progress 
-                      value={getPercentage(option.votes)} 
-                      className="h-8" 
-                      style={{backgroundColor: COLORS[index % COLORS.length]}}
-                    />
-                    <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-[#243642] font-bold">
-                      {option.votes} votes
-                    </span>
-                  </div>
-                  <div className="flex space-x-2 mt-2">
-                    <Button onClick={() => handleVote(index)} variant="outline" size="sm" className="bg-[#387478] text-[#E2F1E7] hover:bg-[#629584]">
-                      Vote
-                    </Button>
-                    <Button onClick={() => handleUnvote(index)} variant="outline" size="sm" className="bg-[#387478] text-[#E2F1E7] hover:bg-[#629584]">
-                      Unvote
-                    </Button>
-                  </div>
-                </div>
-              ))}
+                ))}
+                <Button onClick={onClose} variant="outline" size="lg" className="bg-[#387478] text-[#E2F1E7] hover:bg-[#629584] mt-4">Close</Button>
+              </div>
               
-              <div className="mt-8">
+              <div className="w-full md:w-1/2">
                 <h3 className="text-2xl font-bold mb-4">Poll Statistics</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-8">
                   <div>
                     <h4 className="text-xl font-semibold mb-2">Pie Chart</h4>
-                    <ResponsiveContainer width="100%" height={300}>
+                    <ResponsiveContainer width="100%" height={200}>
                       <PieChart>
                         <Pie
                           data={pieChartData}
@@ -156,7 +159,7 @@ const PollSystem: React.FC<PollSystemProps> = ({ onClose }) => {
                   </div>
                   <div>
                     <h4 className="text-xl font-semibold mb-2">Bar Chart</h4>
-                    <ResponsiveContainer width="100%" height={300}>
+                    <ResponsiveContainer width="100%" height={200}>
                       <BarChart data={barChartData}>
                         <XAxis dataKey="name" />
                         <YAxis />
@@ -171,9 +174,6 @@ const PollSystem: React.FC<PollSystemProps> = ({ onClose }) => {
             </div>
           )}
         </CardContent>
-        <CardFooter className="justify-center">
-          <Button onClick={onClose} variant="outline" size="lg" className="bg-[#387478] text-[#E2F1E7] hover:bg-[#629584]">Close</Button>
-        </CardFooter>
       </Card>
     </div>
   );
