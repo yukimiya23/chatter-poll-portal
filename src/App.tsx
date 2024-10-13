@@ -32,15 +32,15 @@ const AppRoutes: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <Router>
-      <AuthProvider>
+    <AuthProvider>
+      <Router>
         <ChatProvider>
           <PollProvider>
             <AppRoutes />
           </PollProvider>
         </ChatProvider>
-      </AuthProvider>
-    </Router>
+      </Router>
+    </AuthProvider>
   );
 };
 
