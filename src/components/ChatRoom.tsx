@@ -27,9 +27,9 @@ const ChatRoom: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-screen bg-[#E2F1E7]">
       <NavBar />
-      <Card className="flex-grow flex flex-col bg-gray-100 overflow-hidden">
+      <Card className="flex-grow flex flex-col bg-[#243642] overflow-hidden mt-16 mx-4 rounded-lg">
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {messages.map((msg, index) => (
             <div
@@ -37,7 +37,7 @@ const ChatRoom: React.FC = () => {
               className={`flex ${msg.username === user?.username ? 'justify-end' : 'justify-start'}`}
             >
               <div className={`flex flex-col ${msg.username === user?.username ? 'items-end' : 'items-start'} max-w-[70%]`}>
-                <p className="text-xs font-semibold mb-1">{msg.nickname || msg.username}</p>
+                <p className="text-xs font-semibold mb-1 text-[#E2F1E7]">{msg.nickname || msg.username}</p>
                 <div className={`flex ${msg.username === user?.username ? 'flex-row-reverse' : 'flex-row'} items-end`}>
                   <Avatar className="w-8 h-8">
                     {msg.avatar ? (
@@ -49,8 +49,8 @@ const ChatRoom: React.FC = () => {
                   <div
                     className={`rounded-2xl p-3 mx-2 ${
                       msg.username === user?.username
-                        ? 'bg-blue-500 text-white rounded-br-none'
-                        : 'bg-white text-black rounded-bl-none'
+                        ? 'bg-[#387478] text-[#E2F1E7] rounded-br-none'
+                        : 'bg-[#629584] text-[#E2F1E7] rounded-bl-none'
                     }`}
                   >
                     <p className="text-sm">{msg.text}</p>
@@ -62,17 +62,17 @@ const ChatRoom: React.FC = () => {
           ))}
           <div ref={messagesEndRef} />
         </div>
-        <div className="p-4 bg-white">
+        <div className="p-4 bg-[#387478]">
           <form onSubmit={handleSubmit} className="flex items-center space-x-2">
             <Input
               type="text"
               placeholder="Type a message..."
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              className="flex-1 rounded-full bg-gray-100 border-0"
+              className="flex-1 rounded-full bg-[#E2F1E7] border-0 text-[#243642]"
             />
-            <Button type="submit" size="icon" className="rounded-full bg-blue-500 hover:bg-blue-600">
-              <FiSend className="h-4 w-4" />
+            <Button type="submit" size="icon" className="rounded-full bg-[#629584] hover:bg-[#243642]">
+              <FiSend className="h-4 w-4 text-[#E2F1E7]" />
             </Button>
           </form>
         </div>

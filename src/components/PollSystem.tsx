@@ -43,14 +43,14 @@ const PollSystem: React.FC<PollSystemProps> = ({ onClose }) => {
     return totalVotes > 0 ? Math.round((votes / totalVotes) * 100) : 0;
   };
 
-  const COLORS = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'];
+  const COLORS = ['#243642', '#387478', '#629584', '#E2F1E7'];
 
   return (
-    <div className="fixed inset-0 bg-white dark:bg-gray-900 overflow-y-auto">
-      <Card className="w-full h-full max-w-3xl mx-auto p-6">
+    <div className="fixed inset-0 bg-[#E2F1E7] overflow-y-auto">
+      <Card className="w-full h-full max-w-3xl mx-auto p-6 bg-[#243642] text-[#E2F1E7]">
         <CardHeader className="flex justify-between items-center">
           <CardTitle className="text-3xl font-bold">{currentPoll ? currentPoll.question : 'Create a Poll'}</CardTitle>
-          <Button onClick={onClose} variant="outline" size="lg">Close</Button>
+          <Button onClick={onClose} variant="outline" size="lg" className="bg-[#387478] text-[#E2F1E7] hover:bg-[#629584]">Close</Button>
         </CardHeader>
         <CardContent className="mt-8">
           {!currentPoll ? (
@@ -61,7 +61,7 @@ const PollSystem: React.FC<PollSystemProps> = ({ onClose }) => {
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}
                 required
-                className="text-xl p-4"
+                className="text-xl p-4 bg-[#387478] text-[#E2F1E7] placeholder-[#E2F1E7] border-[#629584]"
               />
               {options.map((option, index) => (
                 <Input
@@ -75,14 +75,14 @@ const PollSystem: React.FC<PollSystemProps> = ({ onClose }) => {
                     setOptions(newOptions);
                   }}
                   required
-                  className="text-lg p-3"
+                  className="text-lg p-3 bg-[#387478] text-[#E2F1E7] placeholder-[#E2F1E7] border-[#629584]"
                 />
               ))}
               <div className="flex space-x-4">
-                <Button type="button" onClick={() => setOptions([...options, ''])} size="lg" variant="outline">
+                <Button type="button" onClick={() => setOptions([...options, ''])} size="lg" variant="outline" className="bg-[#387478] text-[#E2F1E7] hover:bg-[#629584]">
                   Add Option
                 </Button>
-                <Button type="submit" size="lg">Create Poll</Button>
+                <Button type="submit" size="lg" className="bg-[#387478] text-[#E2F1E7] hover:bg-[#629584]">Create Poll</Button>
               </div>
             </form>
           ) : (
@@ -99,15 +99,15 @@ const PollSystem: React.FC<PollSystemProps> = ({ onClose }) => {
                       className="h-8" 
                       style={{backgroundColor: COLORS[index % COLORS.length]}}
                     />
-                    <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-white font-bold">
+                    <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-[#243642] font-bold">
                       {option.votes} votes
                     </span>
                   </div>
                   <div className="flex space-x-2 mt-2">
-                    <Button onClick={() => handleVote(index)} variant="outline" size="sm">
+                    <Button onClick={() => handleVote(index)} variant="outline" size="sm" className="bg-[#387478] text-[#E2F1E7] hover:bg-[#629584]">
                       Vote
                     </Button>
-                    <Button onClick={() => handleUnvote(index)} variant="outline" size="sm">
+                    <Button onClick={() => handleUnvote(index)} variant="outline" size="sm" className="bg-[#387478] text-[#E2F1E7] hover:bg-[#629584]">
                       Unvote
                     </Button>
                   </div>
