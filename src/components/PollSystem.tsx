@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { usePoll } from '../contexts/PollContext';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Progress } from "@/components/ui/progress"
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface PollSystemProps {
   onClose: () => void;
@@ -45,12 +46,26 @@ const PollSystem: React.FC<PollSystemProps> = ({ onClose }) => {
 
   const COLORS = ['#243642', '#387478', '#629584', '#E2F1E7'];
 
+  const pieChartData = currentPoll
+    ? currentPoll.options.map((option, index) => ({
+        name: option.text,
+        value: option.votes,
+        color: COLORS[index % COLORS.length]
+      }))
+    : [];
+
+  const barChartData = currentPoll
+    ? currentPoll.options.map((option) => ({
+        name: option.text,
+        votes: option.votes
+      }))
+    : [];
+
   return (
     <div className="fixed inset-0 bg-[#E2F1E7] overflow-y-auto">
       <Card className="w-full h-full max-w-3xl mx-auto p-6 bg-[#243642] text-[#E2F1E7]">
-        <CardHeader className="flex justify-between items-center">
+        <CardHeader>
           <CardTitle className="text-3xl font-bold">{currentPoll ? currentPoll.question : 'Create a Poll'}</CardTitle>
-          <Button onClick={onClose} variant="outline" size="lg" className="bg-[#387478] text-[#E2F1E7] hover:bg-[#629584]">Close</Button>
         </CardHeader>
         <CardContent className="mt-8">
           {!currentPoll ? (
@@ -113,9 +128,52 @@ const PollSystem: React.FC<PollSystemProps> = ({ onClose }) => {
                   </div>
                 </div>
               ))}
+              
+              <div className="mt-8">
+                <h3 className="text-2xl font-bold mb-4">Poll Statistics</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div>
+                    <h4 className="text-xl font-semibold mb-2">Pie Chart</h4>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <PieChart>
+                        <Pie
+                          data={pieChartData}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          outerRadius={80}
+                          fill="#8884d8"
+                          dataKey="value"
+                        >
+                          {pieChartData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                        <Legend />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div>
+                    <h4 className="text-xl font-semibold mb-2">Bar Chart</h4>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <BarChart data={barChartData}>
+                        <XAxis dataKey="name" />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        <Bar dataKey="votes" fill="#387478" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
         </CardContent>
+        <CardFooter className="justify-center">
+          <Button onClick={onClose} variant="outline" size="lg" className="bg-[#387478] text-[#E2F1E7] hover:bg-[#629584]">Close</Button>
+        </CardFooter>
       </Card>
     </div>
   );
