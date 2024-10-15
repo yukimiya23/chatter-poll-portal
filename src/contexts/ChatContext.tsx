@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { db } from '../config/firebase';
+import { collection, addDoc, onSnapshot, query, orderBy } from 'firebase/firestore';
 
 interface Message {
   username: string;
@@ -10,24 +12,30 @@ interface Message {
 
 interface ChatContextType {
   messages: Message[];
-  sendMessage: (text: string, username: string, nickname: string, avatar: string | null) => void;
+  sendMessage: (text: string, username: string, nickname: string, avatar: string | null) => Promise<void>;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
 export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [messages, setMessages] = useState<Message[]>(() => {
-    const storedMessages = localStorage.getItem('chatMessages');
-    return storedMessages ? JSON.parse(storedMessages) : [];
-  });
+  const [messages, setMessages] = useState<Message[]>([]);
 
   useEffect(() => {
-    localStorage.setItem('chatMessages', JSON.stringify(messages));
-  }, [messages]);
+    const q = query(collection(db, 'messages'), orderBy('timestamp', 'asc'));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const fetchedMessages: Message[] = [];
+      querySnapshot.forEach((doc) => {
+        fetchedMessages.push(doc.data() as Message);
+      });
+      setMessages(fetchedMessages);
+    });
 
-  const sendMessage = (text: string, username: string, nickname: string, avatar: string | null) => {
+    return () => unsubscribe();
+  }, []);
+
+  const sendMessage = async (text: string, username: string, nickname: string, avatar: string | null) => {
     const newMessage = { username, nickname, avatar, text, timestamp: Date.now() };
-    setMessages((prevMessages) => [...prevMessages, newMessage]);
+    await addDoc(collection(db, 'messages'), newMessage);
   };
 
   return (

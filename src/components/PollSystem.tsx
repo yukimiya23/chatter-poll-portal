@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Progress } from "@/components/ui/progress"
-import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface PollSystemProps {
   onClose: () => void;
@@ -18,23 +17,23 @@ const PollSystem: React.FC<PollSystemProps> = ({ onClose }) => {
   const { currentPoll, createPoll, vote, unvote } = usePoll();
   const [showCreatePoll, setShowCreatePoll] = useState(!currentPoll);
 
-  const handleCreatePoll = (e: React.FormEvent) => {
+  const handleCreatePoll = async (e: React.FormEvent) => {
     e.preventDefault();
     if (question && options.every(opt => opt.trim())) {
-      createPoll(question, options);
+      await createPoll(question, options);
       setShowCreatePoll(false);
     }
   };
 
-  const handleVote = (optionIndex: number) => {
+  const handleVote = async (optionIndex: number) => {
     if (user && currentPoll) {
-      vote(currentPoll.id, optionIndex, user.username);
+      await vote(currentPoll.id, optionIndex, user.username);
     }
   };
 
-  const handleUnvote = (optionIndex: number) => {
+  const handleUnvote = async (optionIndex: number) => {
     if (user && currentPoll) {
-      unvote(currentPoll.id, optionIndex, user.username);
+      await unvote(currentPoll.id, optionIndex, user.username);
     }
   };
 

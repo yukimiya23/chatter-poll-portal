@@ -18,10 +18,10 @@ const ChatRoom: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (message.trim() && user) {
-      sendMessage(message, user.username, user.nickname || user.username, user.avatar || null);
+      await sendMessage(message, user.username, user.nickname || user.username, user.avatar || null);
       setMessage('');
     }
   };

@@ -1,4 +1,6 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { db } from '../config/firebase';
+import { collection, addDoc, onSnapshot, doc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 
 interface PollOption {
   text: string;
@@ -14,9 +16,9 @@ interface Poll {
 
 interface PollContextType {
   currentPoll: Poll | null;
-  createPoll: (question: string, options: string[]) => void;
-  vote: (pollId: string, optionIndex: number, username: string) => void;
-  unvote: (pollId: string, optionIndex: number, username: string) => void;
+  createPoll: (question: string, options: string[]) => Promise<void>;
+  vote: (pollId: string, optionIndex: number, username: string) => Promise<void>;
+  unvote: (pollId: string, optionIndex: number, username: string) => Promise<void>;
 }
 
 const PollContext = createContext<PollContextType | undefined>(undefined);
@@ -24,42 +26,37 @@ const PollContext = createContext<PollContextType | undefined>(undefined);
 export const PollProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [currentPoll, setCurrentPoll] = useState<Poll | null>(null);
 
-  const createPoll = (question: string, options: string[]) => {
-    const newPoll: Poll = {
-      id: Date.now().toString(),
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, 'polls'), (snapshot) => {
+      const polls = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Poll));
+      setCurrentPoll(polls[0] || null);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const createPoll = async (question: string, options: string[]) => {
+    const newPoll: Omit<Poll, 'id'> = {
       question,
       options: options.map(text => ({ text, votes: 0, voters: [] })),
     };
-    setCurrentPoll(newPoll);
+    await addDoc(collection(db, 'polls'), newPoll);
   };
 
-  const vote = (pollId: string, optionIndex: number, username: string) => {
-    if (currentPoll && currentPoll.id === pollId) {
-      setCurrentPoll(prevPoll => {
-        if (!prevPoll) return null;
-        const updatedOptions = [...prevPoll.options];
-        if (!updatedOptions[optionIndex].voters.includes(username)) {
-          updatedOptions[optionIndex].votes += 1;
-          updatedOptions[optionIndex].voters.push(username);
-        }
-        return { ...prevPoll, options: updatedOptions };
-      });
-    }
+  const vote = async (pollId: string, optionIndex: number, username: string) => {
+    const pollRef = doc(db, 'polls', pollId);
+    await updateDoc(pollRef, {
+      [`options.${optionIndex}.votes`]: arrayUnion(username),
+      [`options.${optionIndex}.voters`]: arrayUnion(username),
+    });
   };
 
-  const unvote = (pollId: string, optionIndex: number, username: string) => {
-    if (currentPoll && currentPoll.id === pollId) {
-      setCurrentPoll(prevPoll => {
-        if (!prevPoll) return null;
-        const updatedOptions = [...prevPoll.options];
-        const voterIndex = updatedOptions[optionIndex].voters.indexOf(username);
-        if (voterIndex !== -1) {
-          updatedOptions[optionIndex].votes -= 1;
-          updatedOptions[optionIndex].voters.splice(voterIndex, 1);
-        }
-        return { ...prevPoll, options: updatedOptions };
-      });
-    }
+  const unvote = async (pollId: string, optionIndex: number, username: string) => {
+    const pollRef = doc(db, 'polls', pollId);
+    await updateDoc(pollRef, {
+      [`options.${optionIndex}.votes`]: arrayRemove(username),
+      [`options.${optionIndex}.voters`]: arrayRemove(username),
+    });
   };
 
   return (
