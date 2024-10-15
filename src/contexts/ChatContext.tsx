@@ -21,13 +21,13 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [messages, setMessages] = useState<Message[]>([]);
 
   useEffect(() => {
-    const q = query(collection(db, 'messages'), orderBy('timestamp', 'asc'), limit(100));
+    const q = query(collection(db, 'messages'), orderBy('timestamp', 'desc'), limit(100));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const fetchedMessages: Message[] = [];
       querySnapshot.forEach((doc) => {
         fetchedMessages.push(doc.data() as Message);
       });
-      setMessages(fetchedMessages);
+      setMessages(fetchedMessages.reverse());
     });
 
     return () => unsubscribe();
