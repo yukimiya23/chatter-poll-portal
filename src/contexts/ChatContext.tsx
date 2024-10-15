@@ -28,14 +28,20 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         fetchedMessages.push(doc.data() as Message);
       });
       setMessages(fetchedMessages.reverse());
+    }, (error) => {
+      console.error("Error fetching messages:", error);
     });
 
     return () => unsubscribe();
   }, []);
 
   const sendMessage = async (text: string, username: string, nickname: string, avatar: string | null) => {
-    const newMessage = { username, nickname, avatar, text, timestamp: Date.now() };
-    await addDoc(collection(db, 'messages'), newMessage);
+    try {
+      const newMessage = { username, nickname, avatar, text, timestamp: Date.now() };
+      await addDoc(collection(db, 'messages'), newMessage);
+    } catch (error) {
+      console.error("Error sending message:", error);
+    }
   };
 
   return (

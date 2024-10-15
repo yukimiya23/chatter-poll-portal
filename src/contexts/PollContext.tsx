@@ -31,33 +31,47 @@ export const PollProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const polls = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Poll));
       setCurrentPoll(polls[0] || null);
+    }, (error) => {
+      console.error("Error fetching polls:", error);
     });
 
     return () => unsubscribe();
   }, []);
 
   const createPoll = async (question: string, options: string[]) => {
-    const newPoll: Omit<Poll, 'id'> = {
-      question,
-      options: options.map(text => ({ text, votes: 0, voters: [] })),
-    };
-    await addDoc(collection(db, 'polls'), newPoll);
+    try {
+      const newPoll: Omit<Poll, 'id'> = {
+        question,
+        options: options.map(text => ({ text, votes: 0, voters: [] })),
+      };
+      await addDoc(collection(db, 'polls'), newPoll);
+    } catch (error) {
+      console.error("Error creating poll:", error);
+    }
   };
 
   const vote = async (pollId: string, optionIndex: number, username: string) => {
-    const pollRef = doc(db, 'polls', pollId);
-    await updateDoc(pollRef, {
-      [`options.${optionIndex}.votes`]: arrayUnion(username),
-      [`options.${optionIndex}.voters`]: arrayUnion(username),
-    });
+    try {
+      const pollRef = doc(db, 'polls', pollId);
+      await updateDoc(pollRef, {
+        [`options.${optionIndex}.votes`]: arrayUnion(username),
+        [`options.${optionIndex}.voters`]: arrayUnion(username),
+      });
+    } catch (error) {
+      console.error("Error voting:", error);
+    }
   };
 
   const unvote = async (pollId: string, optionIndex: number, username: string) => {
-    const pollRef = doc(db, 'polls', pollId);
-    await updateDoc(pollRef, {
-      [`options.${optionIndex}.votes`]: arrayRemove(username),
-      [`options.${optionIndex}.voters`]: arrayRemove(username),
-    });
+    try {
+      const pollRef = doc(db, 'polls', pollId);
+      await updateDoc(pollRef, {
+        [`options.${optionIndex}.votes`]: arrayRemove(username),
+        [`options.${optionIndex}.voters`]: arrayRemove(username),
+      });
+    } catch (error) {
+      console.error("Error unvoting:", error);
+    }
   };
 
   return (
