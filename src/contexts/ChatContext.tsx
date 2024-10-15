@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { db } from '../config/firebase';
-import { collection, addDoc, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { collection, addDoc, onSnapshot, query, orderBy, limit } from 'firebase/firestore';
 
 interface Message {
   username: string;
@@ -21,7 +21,7 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [messages, setMessages] = useState<Message[]>([]);
 
   useEffect(() => {
-    const q = query(collection(db, 'messages'), orderBy('timestamp', 'asc'));
+    const q = query(collection(db, 'messages'), orderBy('timestamp', 'asc'), limit(100));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const fetchedMessages: Message[] = [];
       querySnapshot.forEach((doc) => {

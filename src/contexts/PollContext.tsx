@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { db } from '../config/firebase';
-import { collection, addDoc, onSnapshot, doc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
+import { collection, addDoc, onSnapshot, doc, updateDoc, arrayUnion, arrayRemove, limit, query } from 'firebase/firestore';
 
 interface PollOption {
   text: string;
@@ -27,7 +27,8 @@ export const PollProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [currentPoll, setCurrentPoll] = useState<Poll | null>(null);
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, 'polls'), (snapshot) => {
+    const q = query(collection(db, 'polls'), limit(1));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
       const polls = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Poll));
       setCurrentPoll(polls[0] || null);
     });
