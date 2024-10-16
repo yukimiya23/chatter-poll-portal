@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { realtimeDb } from '../config/firebase';
-import { ref, push, onChildAdded, query, limitToLast, DataSnapshot } from 'firebase/database';
+import { ref, push, onValue, query, limitToLast, DataSnapshot } from 'firebase/database';
 
 interface Message {
   username: string;
@@ -24,15 +24,15 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const messagesRef = ref(realtimeDb, 'messages');
     const messagesQuery = query(messagesRef, limitToLast(100));
     
-    const unsubscribe = onChildAdded(messagesQuery, (snapshot: DataSnapshot) => {
-      const message = snapshot.val() as Message;
-      setMessages((prevMessages) => [...prevMessages, message]);
+    const unsubscribe = onValue(messagesQuery, (snapshot: DataSnapshot) => {
+      const messagesData: Message[] = [];
+      snapshot.forEach((childSnapshot) => {
+        messagesData.push(childSnapshot.val() as Message);
+      });
+      setMessages(messagesData);
     });
 
-    return () => {
-      // This is not actually unsubscribing, but there's no direct way to unsubscribe from onChildAdded
-      // In a real-world scenario, you might want to use a more sophisticated approach
-    };
+    return () => unsubscribe();
   }, []);
 
   const sendMessage = async (text: string, username: string, nickname: string, avatar: string | null) => {
