@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { db } from '../config/firebase';
-import { collection, addDoc, onSnapshot, doc, updateDoc, arrayUnion, arrayRemove, limit, query, getDocs } from 'firebase/firestore';
+import { collection, addDoc, onSnapshot, doc, updateDoc, arrayUnion, arrayRemove, query, orderBy, limit } from 'firebase/firestore';
 
 interface PollOption {
   text: string;
@@ -27,24 +27,7 @@ export const PollProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [currentPoll, setCurrentPoll] = useState<Poll | null>(null);
 
   useEffect(() => {
-    const fetchPoll = async () => {
-      try {
-        const q = query(collection(db, 'polls'), limit(1));
-        const querySnapshot = await getDocs(q);
-        if (!querySnapshot.empty) {
-          const pollDoc = querySnapshot.docs[0];
-          setCurrentPoll({ id: pollDoc.id, ...pollDoc.data() } as Poll);
-        } else {
-          setCurrentPoll(null);
-        }
-      } catch (error) {
-        console.error("Error fetching poll:", error);
-      }
-    };
-
-    fetchPoll();
-
-    const q = query(collection(db, 'polls'), limit(1));
+    const q = query(collection(db, 'polls'), orderBy('timestamp', 'desc'), limit(1));
     const unsubscribe = onSnapshot(q, 
       (snapshot) => {
         if (!snapshot.empty) {
@@ -64,9 +47,10 @@ export const PollProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const createPoll = async (question: string, options: string[]) => {
     try {
-      const newPoll: Omit<Poll, 'id'> = {
+      const newPoll: Omit<Poll, 'id'> & { timestamp: number } = {
         question,
         options: options.map(text => ({ text, votes: 0, voters: [] })),
+        timestamp: Date.now(),
       };
       await addDoc(collection(db, 'polls'), newPoll);
     } catch (error) {

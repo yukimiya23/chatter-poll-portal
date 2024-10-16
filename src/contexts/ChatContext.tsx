@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { db } from '../config/firebase';
-import { collection, addDoc, onSnapshot, query, orderBy, limit, getDocs } from 'firebase/firestore';
+import { collection, addDoc, onSnapshot, query, orderBy, limit } from 'firebase/firestore';
 
 interface Message {
   username: string;
@@ -21,31 +21,14 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [messages, setMessages] = useState<Message[]>([]);
 
   useEffect(() => {
-    const fetchMessages = async () => {
-      try {
-        const q = query(collection(db, 'messages'), orderBy('timestamp', 'desc'), limit(100));
-        const querySnapshot = await getDocs(q);
+    const q = query(collection(db, 'messages'), orderBy('timestamp', 'desc'), limit(100));
+    const unsubscribe = onSnapshot(q, 
+      (querySnapshot) => {
         const fetchedMessages: Message[] = [];
         querySnapshot.forEach((doc) => {
           fetchedMessages.push(doc.data() as Message);
         });
         setMessages(fetchedMessages.reverse());
-      } catch (error) {
-        console.error("Error fetching messages:", error);
-      }
-    };
-
-    fetchMessages();
-
-    const q = query(collection(db, 'messages'), orderBy('timestamp', 'desc'), limit(1));
-    const unsubscribe = onSnapshot(q, 
-      (querySnapshot) => {
-        querySnapshot.docChanges().forEach((change) => {
-          if (change.type === "added") {
-            const newMessage = change.doc.data() as Message;
-            setMessages(prevMessages => [newMessage, ...prevMessages].slice(0, 100));
-          }
-        });
       },
       (error) => {
         console.error("Error in messages listener:", error);
