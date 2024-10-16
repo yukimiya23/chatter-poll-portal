@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { auth } from '../config/firebase';
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 
 interface User {
   username: string;
@@ -20,59 +22,56 @@ interface UserDetails {
 interface AuthContextType {
   user: User | null;
   users: User[];
-  login: (username: string, password: string) => Promise<void>;
-  logout: () => void;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
   updateUserDetails: (details: UserDetails) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(() => {
-    const storedUser = localStorage.getItem('user');
-    return storedUser ? JSON.parse(storedUser) : null;
-  });
+  const [user, setUser] = useState<User | null>(null);
   const [users, setUsers] = useState<User[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Simulating fetching users from an API
-    const fetchUsers = () => {
-      const mockUsers: User[] = [
-        { username: 'user1', isOnline: true },
-        { username: 'user2', isOnline: false },
-        { username: 'user3', isOnline: true },
-      ];
-      setUsers(mockUsers);
-    };
-    fetchUsers();
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        setUser({
+          username: firebaseUser.email || '',
+          isOnline: true,
+        });
+      } else {
+        setUser(null);
+      }
+    });
+
+    return () => unsubscribe();
   }, []);
 
-  const login = async (username: string, password: string) => {
-    if (username.trim() && password.trim()) {
-      const newUser: User = { username, isOnline: true };
-      setUser(newUser);
-      localStorage.setItem('user', JSON.stringify(newUser));
-      setUsers(prevUsers => [...prevUsers, newUser]);
-    } else {
-      throw new Error('Invalid credentials');
+  const login = async (email: string, password: string) => {
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      // User is signed in automatically by Firebase
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
     }
   };
 
-  const logout = () => {
-    if (user) {
-      setUsers(prevUsers => prevUsers.filter(u => u.username !== user.username));
+  const logout = async () => {
+    try {
+      await signOut(auth);
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
     }
-    setUser(null);
-    localStorage.removeItem('user');
-    navigate('/login');
   };
 
   const updateUserDetails = (details: UserDetails) => {
     if (user) {
       const updatedUser = { ...user, ...details };
       setUser(updatedUser);
-      localStorage.setItem('user', JSON.stringify(updatedUser));
       setUsers(prevUsers => prevUsers.map(u => u.username === user.username ? updatedUser : u));
     }
   };
