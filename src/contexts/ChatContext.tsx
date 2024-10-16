@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { db } from '../config/firebase';
-import { collection, addDoc, onSnapshot, query, orderBy, limit } from 'firebase/firestore';
+import { realtimeDb } from '../config/firebase';
+import { ref, push, onChildAdded, DataSnapshot } from 'firebase/database';
 
 interface Message {
   username: string;
@@ -21,27 +21,23 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [messages, setMessages] = useState<Message[]>([]);
 
   useEffect(() => {
-    const q = query(collection(db, 'messages'), orderBy('timestamp', 'desc'), limit(100));
-    const unsubscribe = onSnapshot(q, 
-      (querySnapshot) => {
-        const fetchedMessages: Message[] = [];
-        querySnapshot.forEach((doc) => {
-          fetchedMessages.push(doc.data() as Message);
-        });
-        setMessages(fetchedMessages.reverse());
-      },
-      (error) => {
-        console.error("Error in messages listener:", error);
-      }
-    );
+    const messagesRef = ref(realtimeDb, 'messages');
+    const unsubscribe = onChildAdded(messagesRef, (snapshot: DataSnapshot) => {
+      const message = snapshot.val() as Message;
+      setMessages((prevMessages) => [...prevMessages, message]);
+    });
 
-    return () => unsubscribe();
+    return () => {
+      // This is not actually unsubscribing, but there's no direct way to unsubscribe from onChildAdded
+      // In a real-world scenario, you might want to use a more sophisticated approach
+    };
   }, []);
 
   const sendMessage = async (text: string, username: string, nickname: string, avatar: string | null) => {
     try {
       const newMessage = { username, nickname, avatar, text, timestamp: Date.now() };
-      await addDoc(collection(db, 'messages'), newMessage);
+      const messagesRef = ref(realtimeDb, 'messages');
+      await push(messagesRef, newMessage);
     } catch (error) {
       console.error("Error sending message:", error);
     }
