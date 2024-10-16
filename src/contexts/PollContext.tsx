@@ -28,12 +28,15 @@ export const PollProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   useEffect(() => {
     const q = query(collection(db, 'polls'), limit(1));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const polls = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Poll));
-      setCurrentPoll(polls[0] || null);
-    }, (error) => {
-      console.error("Error fetching polls:", error);
-    });
+    const unsubscribe = onSnapshot(q, 
+      (snapshot) => {
+        const polls = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Poll));
+        setCurrentPoll(polls[0] || null);
+      },
+      (error) => {
+        console.error("Error fetching polls:", error);
+      }
+    );
 
     return () => unsubscribe();
   }, []);

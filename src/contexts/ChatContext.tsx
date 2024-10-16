@@ -22,15 +22,18 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   useEffect(() => {
     const q = query(collection(db, 'messages'), orderBy('timestamp', 'desc'), limit(100));
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const fetchedMessages: Message[] = [];
-      querySnapshot.forEach((doc) => {
-        fetchedMessages.push(doc.data() as Message);
-      });
-      setMessages(fetchedMessages.reverse());
-    }, (error) => {
-      console.error("Error fetching messages:", error);
-    });
+    const unsubscribe = onSnapshot(q, 
+      (querySnapshot) => {
+        const fetchedMessages: Message[] = [];
+        querySnapshot.forEach((doc) => {
+          fetchedMessages.push(doc.data() as Message);
+        });
+        setMessages(fetchedMessages.reverse());
+      },
+      (error) => {
+        console.error("Error fetching messages:", error);
+      }
+    );
 
     return () => unsubscribe();
   }, []);
