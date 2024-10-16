@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { realtimeDb } from '../config/firebase';
-import { ref, push, onChildAdded, DataSnapshot } from 'firebase/database';
+import { ref, push, onChildAdded, query, limitToLast, DataSnapshot } from 'firebase/database';
 
 interface Message {
   username: string;
@@ -22,7 +22,9 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   useEffect(() => {
     const messagesRef = ref(realtimeDb, 'messages');
-    const unsubscribe = onChildAdded(messagesRef, (snapshot: DataSnapshot) => {
+    const messagesQuery = query(messagesRef, limitToLast(100));
+    
+    const unsubscribe = onChildAdded(messagesQuery, (snapshot: DataSnapshot) => {
       const message = snapshot.val() as Message;
       setMessages((prevMessages) => [...prevMessages, message]);
     });
