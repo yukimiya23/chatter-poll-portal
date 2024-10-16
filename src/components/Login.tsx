@@ -6,10 +6,11 @@ import { Button } from "@/components/ui/button"
 import { FaFacebookF, FaTwitter, FaGithub } from 'react-icons/fa';
 
 const Login: React.FC = () => {
-  const [username, setUsername] = useState('');
+  const [isLogin, setIsLogin] = useState(true);
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const { login } = useAuth();
+  const { login, register } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -20,26 +21,32 @@ const Login: React.FC = () => {
       return;
     }
     try {
-      await login(username, password);
+      if (isLogin) {
+        await login(email, password);
+      } else {
+        await register(email, password);
+      }
       navigate('/user-details');
     } catch (err) {
-      console.error('Login failed:', err);
-      setError('Login failed. Please check your credentials.');
+      console.error('Authentication failed:', err);
+      setError(isLogin ? 'Login failed. Please check your credentials.' : 'Registration failed. Please try again.');
     }
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-purple-600">
       <div className="w-full max-w-md p-8 space-y-8 bg-gray-800 rounded-lg shadow-lg">
-        <h2 className="text-3xl font-bold text-center text-white">LOGIN</h2>
-        <p className="text-center text-gray-300">Please enter your login and password</p>
+        <h2 className="text-3xl font-bold text-center text-white">{isLogin ? 'LOGIN' : 'REGISTER'}</h2>
+        <p className="text-center text-gray-300">
+          {isLogin ? 'Please enter your login and password' : 'Create a new account'}
+        </p>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <Input
-              type="text"
-              placeholder="Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
               className="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -57,9 +64,17 @@ const Login: React.FC = () => {
           </div>
           {error && <p className="text-red-500 text-sm">{error}</p>}
           <Button type="submit" className="w-full py-2 px-4 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-md transition duration-200">
-            Login
+            {isLogin ? 'Login' : 'Register'}
           </Button>
         </form>
+        <div className="text-center">
+          <button
+            onClick={() => setIsLogin(!isLogin)}
+            className="text-blue-400 hover:underline"
+          >
+            {isLogin ? 'Need an account? Register' : 'Already have an account? Login'}
+          </button>
+        </div>
         <div className="flex justify-center space-x-4 mt-4">
           <a href="#" className="text-gray-400 hover:text-white transition-colors duration-200">
             <FaFacebookF size={20} />
