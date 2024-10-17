@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Progress } from "@/components/ui/progress"
+import NavBar from './NavBar';
 
 interface PollSystemProps {
   onClose: () => void;
@@ -47,107 +48,98 @@ const PollSystem: React.FC<PollSystemProps> = ({ onClose }) => {
 
   const COLORS = ['#243642', '#387478', '#629584', '#E2F1E7'];
 
-  const pieChartData = currentPoll
-    ? currentPoll.options.map((option, index) => ({
-        name: option.text,
-        value: option.votes,
-        color: COLORS[index % COLORS.length]
-      }))
-    : [];
-
-  const barChartData = currentPoll
-    ? currentPoll.options.map((option) => ({
-        name: option.text,
-        votes: option.votes
-      }))
-    : [];
-
   return (
-    <div className="fixed inset-0 bg-[#E2F1E7] overflow-y-auto p-4">
-      <Card className="w-full max-w-4xl mx-auto bg-[#243642] text-[#E2F1E7]">
-        <CardHeader className="flex flex-row justify-between items-center">
-          <CardTitle className="text-3xl font-bold">
-            {showCreatePoll ? 'Create a Poll' : currentPoll?.question}
-          </CardTitle>
-          {!showCreatePoll && (
-            <Button 
-              onClick={() => setShowCreatePoll(true)} 
-              className="bg-[#387478] text-[#E2F1E7] hover:bg-[#629584]"
-            >
-              Create New Poll
-            </Button>
-          )}
-        </CardHeader>
-        <CardContent>
-          {showCreatePoll ? (
-            <form onSubmit={handleCreatePoll} className="space-y-4">
-              <Input
-                type="text"
-                placeholder="Enter your question"
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
-                required
-                className="text-xl p-4 bg-[#387478] text-[#E2F1E7] placeholder-[#E2F1E7] border-[#629584]"
-              />
-              {options.map((option, index) => (
-                <Input
-                  key={index}
-                  type="text"
-                  placeholder={`Option ${index + 1}`}
-                  value={option}
-                  onChange={(e) => {
-                    const newOptions = [...options];
-                    newOptions[index] = e.target.value;
-                    setOptions(newOptions);
-                  }}
-                  required
-                  className="text-lg p-3 bg-[#387478] text-[#E2F1E7] placeholder-[#E2F1E7] border-[#629584]"
-                />
-              ))}
-              <div className="flex space-x-4">
-                <Button type="button" onClick={() => setOptions([...options, ''])} size="lg" variant="outline" className="bg-[#387478] text-[#E2F1E7] hover:bg-[#629584]">
-                  Add Option
+    <div className="fixed inset-0 bg-[#E2F1E7] overflow-y-auto">
+      <NavBar />
+      <div className="pt-16 px-4">
+        <Card className="w-full max-w-4xl mx-auto bg-[#243642] text-[#E2F1E7]">
+          <CardHeader className="flex flex-row justify-between items-center">
+            <CardTitle className="text-3xl font-bold">
+              {showCreatePoll ? 'Create a Poll' : currentPoll?.question}
+            </CardTitle>
+            <div className="flex space-x-2">
+              {!showCreatePoll && (
+                <Button 
+                  onClick={() => setShowCreatePoll(true)} 
+                  className="bg-[#387478] text-[#E2F1E7] hover:bg-[#629584]"
+                >
+                  Create New Poll
                 </Button>
-                <Button type="submit" size="lg" className="bg-[#387478] text-[#E2F1E7] hover:bg-[#629584]">Create Poll</Button>
-              </div>
-            </form>
-          ) : currentPoll && (
-            <div className="space-y-6">
-              {currentPoll.options.map((option, index) => (
-                <div key={index} className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-lg font-medium">{option.text}</span>
-                    <span className="text-lg font-bold">{getPercentage(option.votes)}%</span>
-                  </div>
-                  <div className="relative">
-                    <Progress 
-                      value={getPercentage(option.votes)} 
-                      className="h-8" 
-                      style={{backgroundColor: COLORS[index % COLORS.length]}}
-                    />
-                    <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-[#243642] font-bold">
-                      {option.votes} votes
-                    </span>
-                  </div>
-                  <div className="flex space-x-2">
-                    <Button onClick={() => handleVote(index)} variant="outline" size="sm" className="bg-[#387478] text-[#E2F1E7] hover:bg-[#629584]">
-                      Vote
-                    </Button>
-                    <Button onClick={() => handleUnvote(index)} variant="outline" size="sm" className="bg-[#387478] text-[#E2F1E7] hover:bg-[#629584]">
-                      Unvote
-                    </Button>
-                  </div>
-                </div>
-              ))}
-              <div className="flex justify-end space-x-2 mt-4">
-                <Button onClick={onClose} variant="outline" size="lg" className="bg-[#387478] text-[#E2F1E7] hover:bg-[#629584]">
-                  Close
-                </Button>
-              </div>
+              )}
+              <Button 
+                onClick={onClose} 
+                className="bg-[#387478] text-[#E2F1E7] hover:bg-[#629584]"
+              >
+                Close
+              </Button>
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </CardHeader>
+          <CardContent>
+            {showCreatePoll ? (
+              <form onSubmit={handleCreatePoll} className="space-y-4">
+                <Input
+                  type="text"
+                  placeholder="Enter your question"
+                  value={question}
+                  onChange={(e) => setQuestion(e.target.value)}
+                  required
+                  className="text-xl p-4 bg-[#387478] text-[#E2F1E7] placeholder-[#E2F1E7] border-[#629584]"
+                />
+                {options.map((option, index) => (
+                  <Input
+                    key={index}
+                    type="text"
+                    placeholder={`Option ${index + 1}`}
+                    value={option}
+                    onChange={(e) => {
+                      const newOptions = [...options];
+                      newOptions[index] = e.target.value;
+                      setOptions(newOptions);
+                    }}
+                    required
+                    className="text-lg p-3 bg-[#387478] text-[#E2F1E7] placeholder-[#E2F1E7] border-[#629584]"
+                  />
+                ))}
+                <div className="flex space-x-4">
+                  <Button type="button" onClick={() => setOptions([...options, ''])} size="lg" variant="outline" className="bg-[#387478] text-[#E2F1E7] hover:bg-[#629584]">
+                    Add Option
+                  </Button>
+                  <Button type="submit" size="lg" className="bg-[#387478] text-[#E2F1E7] hover:bg-[#629584]">Create Poll</Button>
+                </div>
+              </form>
+            ) : currentPoll && (
+              <div className="space-y-6">
+                {currentPoll.options.map((option, index) => (
+                  <div key={index} className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-lg font-medium">{option.text}</span>
+                      <span className="text-lg font-bold">{getPercentage(option.votes)}%</span>
+                    </div>
+                    <div className="relative">
+                      <Progress 
+                        value={getPercentage(option.votes)} 
+                        className="h-8" 
+                        style={{backgroundColor: COLORS[index % COLORS.length]}}
+                      />
+                      <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-[#243642] font-bold">
+                        {option.votes} votes
+                      </span>
+                    </div>
+                    <div className="flex space-x-2">
+                      <Button onClick={() => handleVote(index)} variant="outline" size="sm" className="bg-[#387478] text-[#E2F1E7] hover:bg-[#629584]">
+                        Vote
+                      </Button>
+                      <Button onClick={() => handleUnvote(index)} variant="outline" size="sm" className="bg-[#387478] text-[#E2F1E7] hover:bg-[#629584]">
+                        Unvote
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };

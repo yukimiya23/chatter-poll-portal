@@ -20,13 +20,13 @@ const NavBar: React.FC = () => {
 
   return (
     <>
-      <nav className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-[#243642] rounded-full shadow-lg px-1 py-1 z-10">
-        <ul className="flex items-center space-x-1">
+      <nav className="fixed top-0 left-0 right-0 bg-[#243642] shadow-lg px-4 py-2 z-50">
+        <ul className="flex items-center justify-center space-x-4">
           {navItems.map((item) => (
             <li key={item}>
               {item === 'Poll' ? (
                 <button
-                  className={`px-6 py-2 text-sm font-medium rounded-full transition-colors ${
+                  className={`px-4 py-2 text-sm font-medium rounded-full transition-colors ${
                     activeTab === item
                       ? 'bg-[#387478] text-[#E2F1E7]'
                       : 'text-[#E2F1E7] hover:bg-[#629584]'
@@ -41,7 +41,7 @@ const NavBar: React.FC = () => {
                 </button>
               ) : item === 'Logout' ? (
                 <button
-                  className={`px-6 py-2 text-sm font-medium rounded-full transition-colors ${
+                  className={`px-4 py-2 text-sm font-medium rounded-full transition-colors ${
                     activeTab === item
                       ? 'bg-[#387478] text-[#E2F1E7]'
                       : 'text-[#E2F1E7] hover:bg-[#629584]'
@@ -52,7 +52,7 @@ const NavBar: React.FC = () => {
                 </button>
               ) : item === 'Users' ? (
                 <button
-                  className={`px-6 py-2 text-sm font-medium rounded-full transition-colors ${
+                  className={`px-4 py-2 text-sm font-medium rounded-full transition-colors ${
                     activeTab === item
                       ? 'bg-[#387478] text-[#E2F1E7]'
                       : 'text-[#E2F1E7] hover:bg-[#629584]'
@@ -68,7 +68,7 @@ const NavBar: React.FC = () => {
               ) : (
                 <Link
                   to={item.toLowerCase()}
-                  className={`px-6 py-2 text-sm font-medium rounded-full transition-colors ${
+                  className={`px-4 py-2 text-sm font-medium rounded-full transition-colors ${
                     activeTab === item
                       ? 'bg-[#387478] text-[#E2F1E7]'
                       : 'text-[#E2F1E7] hover:bg-[#629584]'
@@ -87,18 +87,10 @@ const NavBar: React.FC = () => {
         </ul>
       </nav>
       {isPollVisible && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20">
-          <div className="bg-[#E2F1E7] p-6 rounded-lg max-w-md w-full max-h-[80vh] overflow-y-auto">
-            <PollSystem onClose={() => setIsPollVisible(false)} />
-          </div>
-        </div>
+        <PollSystem onClose={() => setIsPollVisible(false)} />
       )}
       {isUserListVisible && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20">
-          <div className="bg-[#E2F1E7] p-6 rounded-lg max-w-md w-full max-h-[80vh] overflow-y-auto">
-            <UserList onClose={() => setIsUserListVisible(false)} />
-          </div>
-        </div>
+        <UserList onClose={() => setIsUserListVisible(false)} />
       )}
     </>
   );
