@@ -16,9 +16,24 @@ const PollSystem: React.FC<PollSystemProps> = ({ onClose }) => {
   const { currentPoll, fetchCurrentPoll, removePoll } = usePoll();
   const { user } = useAuth();
   const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchCurrentPoll();
+    const loadPoll = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        await fetchCurrentPoll();
+      } catch (err) {
+        console.error("Error fetching poll:", err);
+        setError("Failed to load the current poll. Please try again.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadPoll();
   }, [fetchCurrentPoll]);
 
   const handleRemovePoll = async () => {
@@ -37,6 +52,14 @@ const PollSystem: React.FC<PollSystemProps> = ({ onClose }) => {
       });
     }
   };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
   return (
     <Card className="w-full bg-[#243642] text-[#E2F1E7]">

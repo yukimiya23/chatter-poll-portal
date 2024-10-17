@@ -79,6 +79,7 @@ export const PollProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const vote = async (pollId: string, optionIndex: number, username: string) => {
+    if (!user) throw new Error('User must be authenticated to vote');
     try {
       const pollRef = ref(realtimeDb, `polls/${pollId}/options/${optionIndex}/votes`);
       const snapshot = await get(pollRef);
@@ -94,6 +95,7 @@ export const PollProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const unvote = async (pollId: string, optionIndex: number, username: string) => {
+    if (!user) throw new Error('User must be authenticated to unvote');
     try {
       const pollRef = ref(realtimeDb, `polls/${pollId}/options/${optionIndex}/votes`);
       const snapshot = await get(pollRef);
