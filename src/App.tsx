@@ -26,7 +26,11 @@ const MainContent: React.FC = () => {
         <Routes>
           <Route path="/" element={<ChatRoom />} />
           <Route path="/chat" element={<ChatRoom />} />
-          <Route path="/users" element={<UserList onClose={() => setIsUserListVisible(false)} />} />
+          <Route path="/users" element={
+            isUserListVisible ? 
+              <UserList onClose={() => setIsUserListVisible(false)} /> : 
+              null
+          } />
         </Routes>
       </div>
       {isPollVisible && (

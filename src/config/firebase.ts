@@ -39,15 +39,17 @@ enableIndexedDbPersistence(db).catch((err) => {
 // The rules you provided are:
 /*
 {
-  ".rules" : "auth != null",
-  ".write": "auth != null",
-  "messages": {
+  "rules": {
     ".read": "auth != null",
-    ".write": "auth != null"
-  },
-  "polls": {
-    ".read": true,
-    ".write": true
+    ".write": "auth != null",
+    "messages": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "polls": {
+      ".read": true,
+      ".write": true
+    }
   }
 }
 */
