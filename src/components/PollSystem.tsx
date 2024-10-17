@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Progress } from "@/components/ui/progress"
-import NavBar from './NavBar';
 
 interface PollSystemProps {
   onClose: () => void;
@@ -49,30 +48,19 @@ const PollSystem: React.FC<PollSystemProps> = ({ onClose }) => {
   const COLORS = ['#243642', '#387478', '#629584', '#E2F1E7'];
 
   return (
-    <div className="fixed inset-0 bg-[#E2F1E7] overflow-y-auto">
-      <NavBar />
+    <div className="fixed inset-0 bg-[#E2F1E7] bg-opacity-90 overflow-y-auto z-50">
       <div className="pt-16 px-4">
         <Card className="w-full max-w-4xl mx-auto bg-[#243642] text-[#E2F1E7]">
           <CardHeader className="flex flex-row justify-between items-center">
             <CardTitle className="text-3xl font-bold">
               {showCreatePoll ? 'Create a Poll' : currentPoll?.question}
             </CardTitle>
-            <div className="flex space-x-2">
-              {!showCreatePoll && (
-                <Button 
-                  onClick={() => setShowCreatePoll(true)} 
-                  className="bg-[#387478] text-[#E2F1E7] hover:bg-[#629584]"
-                >
-                  Create New Poll
-                </Button>
-              )}
-              <Button 
-                onClick={onClose} 
-                className="bg-[#387478] text-[#E2F1E7] hover:bg-[#629584]"
-              >
-                Close
-              </Button>
-            </div>
+            <Button 
+              onClick={onClose} 
+              className="bg-[#387478] text-[#E2F1E7] hover:bg-[#629584]"
+            >
+              Close
+            </Button>
           </CardHeader>
           <CardContent>
             {showCreatePoll ? (

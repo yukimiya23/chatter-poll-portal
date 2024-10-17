@@ -7,12 +7,14 @@ import { Card } from "@/components/ui/card"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { FiSend } from 'react-icons/fi';
 import NavBar from './NavBar';
+import PollSystem from './PollSystem';
 
 const ChatRoom: React.FC = () => {
   const [message, setMessage] = useState('');
   const { user } = useAuth();
   const { messages, sendMessage } = useChat();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [isPollVisible, setIsPollVisible] = useState(false);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -28,7 +30,7 @@ const ChatRoom: React.FC = () => {
 
   return (
     <div className="flex flex-col h-screen bg-[#E2F1E7]">
-      <NavBar />
+      <NavBar onPollClick={() => setIsPollVisible(true)} />
       <Card className="flex-grow flex flex-col bg-[#243642] overflow-hidden mt-16 mx-4 rounded-lg">
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {messages.map((msg, index) => (
@@ -77,6 +79,7 @@ const ChatRoom: React.FC = () => {
           </form>
         </div>
       </Card>
+      {isPollVisible && <PollSystem onClose={() => setIsPollVisible(false)} />}
     </div>
   );
 };
