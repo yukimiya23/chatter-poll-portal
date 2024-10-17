@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Input } from "@/components/ui/input"
@@ -10,13 +10,26 @@ const UserDetails: React.FC = () => {
   const [lastName, setLastName] = useState('');
   const [nickname, setNickname] = useState('');
   const [avatar, setAvatar] = useState<string | null>(null);
-  const { updateUserDetails } = useAuth();
+  const { updateUserDetails, getUserDetails } = useAuth();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      const details = await getUserDetails();
+      if (details) {
+        setFirstName(details.firstName);
+        setLastName(details.lastName);
+        setNickname(details.nickname);
+        setAvatar(details.avatar);
+      }
+    };
+    fetchUserDetails();
+  }, [getUserDetails]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    updateUserDetails({ firstName, lastName, nickname, avatar });
+    await updateUserDetails({ firstName, lastName, nickname, avatar });
     navigate('/');
   };
 
@@ -80,7 +93,7 @@ const UserDetails: React.FC = () => {
             className="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <Button type="submit" className="w-full py-2 px-4 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-md transition duration-200">
-            Complete Login
+            Save Details
           </Button>
         </form>
       </div>
