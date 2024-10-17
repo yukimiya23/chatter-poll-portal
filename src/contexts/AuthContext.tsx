@@ -10,6 +10,10 @@ interface AuthUser {
   username: string;
   nickname?: string;
   avatar?: string | null;
+  firstName?: string;
+  lastName?: string;
+  isOnline?: boolean;
+  id?: string;
 }
 
 interface AuthContextType {
@@ -53,7 +57,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const register = async (email: string, password: string) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const newUser: AuthUser = { uid: userCredential.user.uid, email, username: email.split('@')[0] };
+    const newUser: AuthUser = { uid: userCredential.user.uid, email, username: email.split('@')[0], isOnline: true };
     await setDoc(doc(db, 'users', newUser.uid), newUser);
     setUser(newUser);
     navigate('/user-details');
@@ -67,8 +71,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const updateUserDetails = async (details: Partial<AuthUser>) => {
     if (user) {
-      await setDoc(doc(db, 'users', user.uid), { ...user, ...details });
-      setUser((prev) => ({ ...prev, ...details }));
+      const updatedUser = { ...user, ...details };
+      await setDoc(doc(db, 'users', user.uid), updatedUser);
+      setUser(updatedUser);
     }
   };
 
