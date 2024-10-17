@@ -12,29 +12,18 @@ interface PollSystemProps {
 
 const PollSystem: React.FC<PollSystemProps> = ({ onClose }) => {
   const [showCreatePoll, setShowCreatePoll] = useState(false);
-  const { currentPoll } = usePoll();
+  const { currentPoll, fetchCurrentPoll } = usePoll();
   const { toast } = useToast();
 
   useEffect(() => {
-    setShowCreatePoll(!currentPoll);
-  }, [currentPoll]);
-
-  if (!currentPoll && !showCreatePoll) {
-    return (
-      <Card className="w-full bg-[#243642] text-[#E2F1E7]">
-        <CardContent>
-          <p>No active poll. Create a new one to start voting.</p>
-          <Button onClick={() => setShowCreatePoll(true)}>Create New Poll</Button>
-        </CardContent>
-      </Card>
-    );
-  }
+    fetchCurrentPoll();
+  }, [fetchCurrentPoll]);
 
   return (
     <Card className="w-full bg-[#243642] text-[#E2F1E7]">
       <CardHeader className="flex flex-row justify-between items-center">
         <CardTitle className="text-3xl font-bold">
-          {showCreatePoll ? 'Create a Poll' : currentPoll?.question}
+          {showCreatePoll ? 'Create a Poll' : currentPoll ? currentPoll.question : 'No Active Poll'}
         </CardTitle>
         <Button 
           onClick={onClose} 
@@ -46,8 +35,15 @@ const PollSystem: React.FC<PollSystemProps> = ({ onClose }) => {
       <CardContent>
         {showCreatePoll ? (
           <PollCreationForm setShowCreatePoll={setShowCreatePoll} />
-        ) : currentPoll && (
+        ) : currentPoll ? (
           <PollVotingSection currentPoll={currentPoll} />
+        ) : (
+          <div>
+            <p>No active poll. Create a new one to start voting.</p>
+            <Button onClick={() => setShowCreatePoll(true)} className="mt-4 bg-[#387478] text-[#E2F1E7] hover:bg-[#629584]">
+              Create New Poll
+            </Button>
+          </div>
         )}
       </CardContent>
     </Card>
