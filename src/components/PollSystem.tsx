@@ -19,10 +19,6 @@ const PollSystem: React.FC<PollSystemProps> = ({ onClose }) => {
     fetchCurrentPoll();
   }, [fetchCurrentPoll]);
 
-  const handleCreatePollClick = () => {
-    setShowCreatePoll(true);
-  };
-
   return (
     <Card className="w-full bg-[#243642] text-[#E2F1E7]">
       <CardHeader className="flex flex-row justify-between items-center">
@@ -44,10 +40,7 @@ const PollSystem: React.FC<PollSystemProps> = ({ onClose }) => {
         ) : (
           <div>
             <p>No active poll. Create a new one to start voting.</p>
-            <Button 
-              onClick={handleCreatePollClick} 
-              className="mt-4 bg-[#387478] text-[#E2F1E7] hover:bg-[#629584]"
-            >
+            <Button onClick={() => setShowCreatePoll(true)} className="mt-4 bg-[#387478] text-[#E2F1E7] hover:bg-[#629584]">
               Create New Poll
             </Button>
           </div>
