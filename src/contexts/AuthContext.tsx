@@ -54,6 +54,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     try {
       await signInWithEmailAndPassword(auth, email, password);
       // User is signed in automatically by Firebase
+      navigate('/user-details');
     } catch (error) {
       console.error('Login error:', error);
       throw error;
@@ -63,7 +64,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const register = async (email: string, password: string) => {
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-      // User is signed in automatically by Firebase after registration
+      // After registration, navigate to login page instead of user-details
+      navigate('/login');
     } catch (error) {
       console.error('Registration error:', error);
       throw error;

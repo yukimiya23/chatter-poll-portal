@@ -24,7 +24,7 @@ const AppRoutes: React.FC = () => {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
-      <Route path="/user-details" element={<UserDetails />} />
+      <Route path="/user-details" element={<PrivateRoute element={<UserDetails />} />} />
       <Route path="/" element={<PrivateRoute element={<MainContent />} />} />
     </Routes>
   );
