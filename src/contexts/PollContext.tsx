@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { db, realtimeDb } from '../config/firebase';
-import { ref, onValue, set, get, push } from 'firebase/database';
+import { ref, onValue, set, get, push, remove } from 'firebase/database';
 import { collection, addDoc, doc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 
 interface PollOption {
@@ -20,6 +20,7 @@ interface PollContextType {
   vote: (pollId: string, optionIndex: number, username: string) => Promise<void>;
   unvote: (pollId: string, optionIndex: number, username: string) => Promise<void>;
   fetchCurrentPoll: () => Promise<void>;
+  removePoll: () => Promise<void>;
 }
 
 const PollContext = createContext<PollContextType | undefined>(undefined);
@@ -81,7 +82,7 @@ export const PollProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (!currentVotes.includes(username)) {
         await set(pollRef, [...currentVotes, username]);
       }
-      await fetchCurrentPoll(); // Refresh the current poll data
+      await fetchCurrentPoll();
     } catch (error) {
       console.error("Error voting:", error);
       throw error;
@@ -95,15 +96,28 @@ export const PollProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const currentVotes = snapshot.val() || [];
       const updatedVotes = currentVotes.filter((voter: string) => voter !== username);
       await set(pollRef, updatedVotes);
-      await fetchCurrentPoll(); // Refresh the current poll data
+      await fetchCurrentPoll();
     } catch (error) {
       console.error("Error unvoting:", error);
       throw error;
     }
   };
 
+  const removePoll = async () => {
+    try {
+      if (currentPoll) {
+        await remove(ref(realtimeDb, `polls/${currentPoll.id}`));
+        await remove(ref(realtimeDb, 'currentPoll'));
+        setCurrentPoll(null);
+      }
+    } catch (error) {
+      console.error("Error removing poll:", error);
+      throw error;
+    }
+  };
+
   return (
-    <PollContext.Provider value={{ currentPoll, createPoll, vote, unvote, fetchCurrentPoll }}>
+    <PollContext.Provider value={{ currentPoll, createPoll, vote, unvote, fetchCurrentPoll, removePoll }}>
       {children}
     </PollContext.Provider>
   );

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "../hooks/use-toast";
 import PollCreationForm from './PollCreationForm';
 import PollVotingSection from './PollVotingSection';
+import { useAuth } from '../contexts/AuthContext';
 
 interface PollSystemProps {
   onClose: () => void;
@@ -12,8 +13,9 @@ interface PollSystemProps {
 
 const PollSystem: React.FC<PollSystemProps> = ({ onClose }) => {
   const [showCreatePoll, setShowCreatePoll] = useState(false);
-  const { currentPoll, fetchCurrentPoll } = usePoll();
+  const { currentPoll, fetchCurrentPoll, removePoll } = usePoll();
   const { toast } = useToast();
+  const { user } = useAuth();
 
   useEffect(() => {
     fetchCurrentPoll();
@@ -21,6 +23,23 @@ const PollSystem: React.FC<PollSystemProps> = ({ onClose }) => {
 
   const handleCreatePollClick = () => {
     setShowCreatePoll(true);
+  };
+
+  const handleRemovePoll = async () => {
+    try {
+      await removePoll();
+      toast({
+        title: "Poll Removed",
+        description: "The current poll has been removed successfully.",
+      });
+    } catch (error) {
+      console.error("Error removing poll:", error);
+      toast({
+        title: "Error",
+        description: "Failed to remove the poll. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -40,7 +59,25 @@ const PollSystem: React.FC<PollSystemProps> = ({ onClose }) => {
         {showCreatePoll ? (
           <PollCreationForm setShowCreatePoll={setShowCreatePoll} />
         ) : currentPoll ? (
-          <PollVotingSection currentPoll={currentPoll} />
+          <>
+            <PollVotingSection currentPoll={currentPoll} />
+            <div className="mt-4 flex justify-between">
+              <Button 
+                onClick={handleCreatePollClick} 
+                className="bg-[#387478] text-[#E2F1E7] hover:bg-[#629584]"
+              >
+                Create New Poll
+              </Button>
+              {user && (
+                <Button 
+                  onClick={handleRemovePoll} 
+                  className="bg-[#E2F1E7] text-[#387478] hover:bg-[#629584]"
+                >
+                  Remove Poll
+                </Button>
+              )}
+            </div>
+          </>
         ) : (
           <div>
             <p>No active poll. Create a new one to start voting.</p>
