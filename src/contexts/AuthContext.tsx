@@ -11,6 +11,10 @@ interface AuthUser {
   username: string;
   nickname?: string;
   avatar?: string | null;
+  firstName?: string;
+  lastName?: string;
+  isOnline?: boolean;
+  id?: string; // Adding this for compatibility with existing code
 }
 
 interface AuthContextType {
