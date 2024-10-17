@@ -1,8 +1,9 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth, db } from '../config/firebase';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { useToast } from "@/hooks/use-toast"
 
 interface User {
   username: string;
@@ -35,6 +36,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [user, setUser] = useState<User | null>(null);
   const [users, setUsers] = useState<User[]>([]);
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -64,9 +66,27 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const login = async (email: string, password: string) => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
+      const userDoc = await getDoc(doc(db, 'users', auth.currentUser!.uid));
+      if (userDoc.exists()) {
+        const userData = userDoc.data() as User;
+        setUser({
+          ...userData,
+          username: email,
+          isOnline: true,
+        });
+      }
+      toast({
+        title: "Logged in successfully",
+        description: "Welcome back to the chat room!",
+      });
       navigate('/');
     } catch (error) {
       console.error('Login error:', error);
+      toast({
+        title: "Login failed",
+        description: "Please check your credentials and try again.",
+        variant: "destructive",
+      });
       throw error;
     }
   };
@@ -78,9 +98,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         username: email,
         isOnline: true,
       });
+      toast({
+        title: "Registered successfully",
+        description: "Please complete your user details.",
+      });
       navigate('/user-details');
     } catch (error) {
       console.error('Registration error:', error);
+      toast({
+        title: "Registration failed",
+        description: "Please try again with a different email.",
+        variant: "destructive",
+      });
       throw error;
     }
   };
@@ -88,9 +117,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const logout = async () => {
     try {
       await signOut(auth);
+      setUser(null);
+      toast({
+        title: "Logged out successfully",
+        description: "See you next time!",
+      });
       navigate('/login');
     } catch (error) {
       console.error('Logout error:', error);
+      toast({
+        title: "Logout failed",
+        description: "An error occurred while logging out.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -100,7 +139,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setUser(updatedUser);
       setUsers(prevUsers => prevUsers.map(u => u.username === user.username ? updatedUser : u));
       
-      // Save user details to Firestore
       await setDoc(doc(db, 'users', auth.currentUser.uid), updatedUser);
     }
   };
