@@ -25,18 +25,10 @@ const Login: React.FC = () => {
     try {
       if (isLogin) {
         await login(email, password);
-        toast({
-          title: "Logged in successfully",
-          description: "Welcome to the chat room!",
-        });
-        navigate('/'); // Redirect to chat room after login
+        // Navigation is handled in the login function
       } else {
         await register(email, password);
-        toast({
-          title: "Registered successfully",
-          description: "Please complete your user details.",
-        });
-        // Navigation to user details is handled in AuthContext
+        // Navigation is handled in the register function
       }
     } catch (err) {
       console.error('Authentication failed:', err);

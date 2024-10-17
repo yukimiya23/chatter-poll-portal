@@ -65,8 +65,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const login = async (email: string, password: string) => {
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      const userDoc = await getDoc(doc(db, 'users', auth.currentUser!.uid));
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const userDoc = await getDoc(doc(db, 'users', userCredential.user.uid));
       if (userDoc.exists()) {
         const userData = userDoc.data() as User;
         setUser({
@@ -74,12 +74,23 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           username: email,
           isOnline: true,
         });
+        toast({
+          title: "Logged in successfully",
+          description: "Welcome back to the chat room!",
+        });
+        navigate('/');
+      } else {
+        // If user document doesn't exist, redirect to user details
+        setUser({
+          username: email,
+          isOnline: true,
+        });
+        toast({
+          title: "Please complete your profile",
+          description: "We need some additional information.",
+        });
+        navigate('/user-details');
       }
-      toast({
-        title: "Logged in successfully",
-        description: "Welcome back to the chat room!",
-      });
-      navigate('/');
     } catch (error) {
       console.error('Login error:', error);
       toast({
@@ -140,6 +151,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setUsers(prevUsers => prevUsers.map(u => u.username === user.username ? updatedUser : u));
       
       await setDoc(doc(db, 'users', auth.currentUser.uid), updatedUser);
+      navigate('/');
     }
   };
 
