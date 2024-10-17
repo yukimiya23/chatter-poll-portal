@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { usePoll } from '../contexts/PollContext';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "../hooks/use-toast";
 
 interface PollSystemProps {
   onClose: () => void;
@@ -19,6 +19,10 @@ const PollSystem: React.FC<PollSystemProps> = ({ onClose }) => {
   const [showCreatePoll, setShowCreatePoll] = useState(!currentPoll);
   const [isVoting, setIsVoting] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    setShowCreatePoll(!currentPoll);
+  }, [currentPoll]);
 
   const handleCreatePoll = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,6 +98,17 @@ const PollSystem: React.FC<PollSystemProps> = ({ onClose }) => {
   };
 
   const COLORS = ['#243642', '#387478', '#629584', '#E2F1E7'];
+
+  if (!currentPoll && !showCreatePoll) {
+    return (
+      <Card className="w-full bg-[#243642] text-[#E2F1E7]">
+        <CardContent>
+          <p>No active poll. Create a new one to start voting.</p>
+          <Button onClick={() => setShowCreatePoll(true)}>Create New Poll</Button>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="w-full bg-[#243642] text-[#E2F1E7]">
