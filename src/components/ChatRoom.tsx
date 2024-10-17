@@ -28,9 +28,13 @@ const ChatRoom: React.FC = () => {
     }
   };
 
+  const handlePollClick = () => {
+    setIsPollVisible(true);
+  };
+
   return (
     <div className="flex flex-col h-screen bg-[#E2F1E7]">
-      <NavBar onPollClick={() => setIsPollVisible(true)} />
+      <NavBar onPollClick={handlePollClick} />
       <Card className="flex-grow flex flex-col bg-[#243642] overflow-hidden mt-16 mx-4 rounded-lg">
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {messages.map((msg, index) => (

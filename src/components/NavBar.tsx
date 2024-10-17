@@ -41,7 +41,10 @@ const NavBar: React.FC<NavBarProps> = ({ onPollClick }) => {
         </li>
         <li>
           <Button
-            onClick={onPollClick}
+            onClick={(e) => {
+              e.preventDefault();
+              onPollClick();
+            }}
             variant="ghost"
             className="text-[#E2F1E7] hover:bg-[#629584] hover:text-[#243642]"
           >
@@ -57,7 +60,10 @@ const NavBar: React.FC<NavBarProps> = ({ onPollClick }) => {
         </li>
         <li>
           <Button
-            onClick={handleLogout}
+            onClick={(e) => {
+              e.preventDefault();
+              handleLogout();
+            }}
             variant="ghost"
             className="text-[#E2F1E7] hover:bg-[#629584] hover:text-[#243642]"
           >
