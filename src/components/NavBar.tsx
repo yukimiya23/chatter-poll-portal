@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 interface NavBarProps {
   onPollClick: () => void;
@@ -18,6 +18,8 @@ const NavBar: React.FC<NavBarProps> = ({ onPollClick }) => {
   const handleNavigation = (path: string) => {
     if (path === 'poll') {
       onPollClick();
+    } else if (path === 'logout') {
+      handleLogout();
     } else {
       navigate(`/${path}`);
     }
@@ -32,7 +34,7 @@ const NavBar: React.FC<NavBarProps> = ({ onPollClick }) => {
           <li key={item}>
             <button
               className="px-4 py-2 text-sm font-medium rounded-full transition-colors text-[#E2F1E7] hover:bg-[#629584]"
-              onClick={() => item === 'Logout' ? handleLogout() : handleNavigation(item.toLowerCase())}
+              onClick={() => handleNavigation(item.toLowerCase())}
             >
               {item}
             </button>
