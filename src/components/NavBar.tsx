@@ -13,21 +13,13 @@ const NavBar: React.FC<NavBarProps> = ({ onPollClick }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleNavigation = (path: string) => {
+  const handleNavigation = async (path: string) => {
     try {
       if (path === 'poll') {
         onPollClick();
       } else if (path === 'logout') {
-        logout().then(() => {
-          navigate('/login');
-        }).catch((error) => {
-          console.error('Logout error:', error);
-          toast({
-            title: "Logout Error",
-            description: "An error occurred while logging out. Please try again.",
-            variant: "destructive",
-          });
-        });
+        await logout();
+        navigate('/login');
       } else {
         navigate(`/${path}`);
       }
@@ -45,7 +37,7 @@ const NavBar: React.FC<NavBarProps> = ({ onPollClick }) => {
 
   return (
     <nav className="fixed top-0 left-0 right-0 bg-[#243642] shadow-lg px-4 py-2 z-50">
-      <ul className="flex items-center justify-center space-x-4">
+      <ul className="flex items-center justify-center space-x-4 flex-wrap">
         {navItems.map((item) => (
           <li key={item}>
             <Button
