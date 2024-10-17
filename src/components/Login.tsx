@@ -27,8 +27,14 @@ const Login: React.FC = () => {
     try {
       if (isLogin) {
         await login(email, password);
+        navigate('/');
       } else {
         await register(email, password);
+        toast({
+          title: "Registration Successful",
+          description: "Please complete your profile details.",
+        });
+        navigate('/user-details');
       }
     } catch (err) {
       console.error('Authentication failed:', err);
