@@ -17,15 +17,16 @@ const PrivateRoute: React.FC<{ element: React.ReactElement }> = ({ element }) =>
 
 const MainContent: React.FC = () => {
   const [isPollVisible, setIsPollVisible] = useState(false);
+  const [isUserListVisible, setIsUserListVisible] = useState(false);
 
   return (
     <>
       <NavBar onPollClick={() => setIsPollVisible(true)} />
-      <div className="pt-16"> {/* Add padding to account for fixed NavBar */}
+      <div className="pt-16">
         <Routes>
           <Route path="/" element={<ChatRoom />} />
           <Route path="/chat" element={<ChatRoom />} />
-          <Route path="/users" element={<UserList onClose={() => {}} />} />
+          <Route path="/users" element={<UserList onClose={() => setIsUserListVisible(false)} />} />
         </Routes>
       </div>
       {isPollVisible && (

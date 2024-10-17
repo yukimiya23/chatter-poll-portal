@@ -10,7 +10,7 @@ interface PollVotingSectionProps {
     id: string;
     question: string;
     options: { text: string; votes: string[] }[];
-  };
+  } | null;
 }
 
 const PollVotingSection: React.FC<PollVotingSectionProps> = ({ currentPoll }) => {
@@ -18,6 +18,10 @@ const PollVotingSection: React.FC<PollVotingSectionProps> = ({ currentPoll }) =>
   const { user } = useAuth();
   const { vote, unvote } = usePoll();
   const { toast } = useToast();
+
+  if (!currentPoll) {
+    return <div>No active poll at the moment.</div>;
+  }
 
   const handleVote = async (optionIndex: number) => {
     if (user && currentPoll) {
