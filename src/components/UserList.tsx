@@ -53,7 +53,7 @@ const UserList: React.FC<UserListProps> = ({ onClose }) => {
           ) : (
             <ul className="space-y-4">
               {users.map((user) => (
-                <li key={user.uid} className="flex items-center space-x-4">
+                <li key={user.id} className="flex items-center space-x-4">
                   <div className={`w-3 h-3 rounded-full ${user.isOnline ? 'bg-green-500' : 'bg-gray-500'}`}></div>
                   <span className="text-lg">{user.username}</span>
                 </li>
