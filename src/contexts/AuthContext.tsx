@@ -63,12 +63,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const register = async (email: string, password: string) => {
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-      // After successful registration, set the user and navigate to the chat room
+      // After successful registration, set the user and navigate to the user details page
       setUser({
         username: email,
         isOnline: true,
       });
-      navigate('/');
+      navigate('/user-details');
     } catch (error) {
       console.error('Registration error:', error);
       throw error;
