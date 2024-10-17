@@ -6,7 +6,14 @@ import { PollProvider } from './contexts/PollContext';
 import Login from './components/Login';
 import UserDetails from './components/UserDetails';
 import ChatRoom from './components/ChatRoom';
-import UserList from './components/UserList';
+
+const MainContent: React.FC = () => {
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <ChatRoom />
+    </div>
+  );
+};
 
 const PrivateRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
   const { user } = useAuth();
@@ -18,8 +25,7 @@ const AppRoutes: React.FC = () => {
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/user-details" element={<PrivateRoute element={<UserDetails />} />} />
-      <Route path="/" element={<PrivateRoute element={<ChatRoom />} />} />
-      <Route path="/users" element={<PrivateRoute element={<UserList onClose={() => {}} />} />} />
+      <Route path="/" element={<PrivateRoute element={<MainContent />} />} />
     </Routes>
   );
 };
