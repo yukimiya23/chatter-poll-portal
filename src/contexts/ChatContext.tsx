@@ -31,7 +31,6 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     onChildAdded(messagesRef, handleNewMessage);
 
     return () => {
-      // Detach the listener
       off(messagesRef, 'child_added', handleNewMessage);
     };
   }, []);
