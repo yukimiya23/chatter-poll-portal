@@ -1,11 +1,9 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { auth, db } from '../config/firebase';
+import { auth } from '../config/firebase';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
 
 interface User {
-  uid: string;
   username: string;
   firstName?: string;
   lastName?: string;
@@ -27,8 +25,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
-  updateUserDetails: (details: UserDetails) => Promise<void>;
-  getUserDetails: () => Promise<UserDetails | null>;
+  updateUserDetails: (details: UserDetails) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -39,13 +36,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const navigate = useNavigate();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser) {
-        const userDetails = await getUserDetails();
         setUser({
-          uid: firebaseUser.uid,
           username: firebaseUser.email || '',
-          ...userDetails,
           isOnline: true,
         });
       } else {
@@ -59,12 +53,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const login = async (email: string, password: string) => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      const userDetails = await getUserDetails();
-      if (userDetails) {
-        navigate('/');
-      } else {
-        navigate('/user-details');
-      }
+      // User is signed in automatically by Firebase
+      navigate('/user-details');
     } catch (error) {
       console.error('Login error:', error);
       throw error;
@@ -74,7 +64,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const register = async (email: string, password: string) => {
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-      navigate('/user-details');
+      // After registration, navigate to login page instead of user-details
+      navigate('/login');
     } catch (error) {
       console.error('Registration error:', error);
       throw error;
@@ -90,27 +81,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const updateUserDetails = async (details: UserDetails) => {
+  const updateUserDetails = (details: UserDetails) => {
     if (user) {
-      const userRef = doc(db, 'users', user.uid);
-      await setDoc(userRef, details, { merge: true });
-      setUser({ ...user, ...details });
+      const updatedUser = { ...user, ...details };
+      setUser(updatedUser);
+      setUsers(prevUsers => prevUsers.map(u => u.username === user.username ? updatedUser : u));
     }
-  };
-
-  const getUserDetails = async (): Promise<UserDetails | null> => {
-    if (auth.currentUser) {
-      const userRef = doc(db, 'users', auth.currentUser.uid);
-      const userSnap = await getDoc(userRef);
-      if (userSnap.exists()) {
-        return userSnap.data() as UserDetails;
-      }
-    }
-    return null;
   };
 
   return (
-    <AuthContext.Provider value={{ user, users, login, register, logout, updateUserDetails, getUserDetails }}>
+    <AuthContext.Provider value={{ user, users, login, register, logout, updateUserDetails }}>
       {children}
     </AuthContext.Provider>
   );
