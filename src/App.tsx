@@ -6,28 +6,11 @@ import { PollProvider } from './contexts/PollContext';
 import Login from './components/Login';
 import UserDetails from './components/UserDetails';
 import ChatRoom from './components/ChatRoom';
-
-const MainContent: React.FC = () => {
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <ChatRoom />
-    </div>
-  );
-};
+import UserList from './components/UserList';
 
 const PrivateRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
   const { user } = useAuth();
   return user ? element : <Navigate to="/login" />;
-};
-
-const AppRoutes: React.FC = () => {
-  return (
-    <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/user-details" element={<PrivateRoute element={<UserDetails />} />} />
-      <Route path="/" element={<PrivateRoute element={<MainContent />} />} />
-    </Routes>
-  );
 };
 
 const App: React.FC = () => {
@@ -36,7 +19,13 @@ const App: React.FC = () => {
       <AuthProvider>
         <ChatProvider>
           <PollProvider>
-            <AppRoutes />
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/user-details" element={<PrivateRoute element={<UserDetails />} />} />
+              <Route path="/" element={<PrivateRoute element={<ChatRoom />} />} />
+              <Route path="/chat" element={<PrivateRoute element={<ChatRoom />} />} />
+              <Route path="/users" element={<PrivateRoute element={<UserList onClose={() => {}} />} />} />
+            </Routes>
           </PollProvider>
         </ChatProvider>
       </AuthProvider>

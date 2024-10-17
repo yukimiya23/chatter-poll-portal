@@ -15,6 +15,14 @@ const NavBar: React.FC<NavBarProps> = ({ onPollClick }) => {
     navigate('/login');
   };
 
+  const handleNavigation = (path: string) => {
+    if (path === 'poll') {
+      onPollClick();
+    } else {
+      navigate(`/${path}`);
+    }
+  };
+
   const navItems = ['Chat', 'Poll', 'Users', 'Logout'];
 
   return (
@@ -22,28 +30,12 @@ const NavBar: React.FC<NavBarProps> = ({ onPollClick }) => {
       <ul className="flex items-center justify-center space-x-4">
         {navItems.map((item) => (
           <li key={item}>
-            {item === 'Poll' ? (
-              <button
-                className="px-4 py-2 text-sm font-medium rounded-full transition-colors text-[#E2F1E7] hover:bg-[#629584]"
-                onClick={onPollClick}
-              >
-                {item}
-              </button>
-            ) : item === 'Logout' ? (
-              <button
-                className="px-4 py-2 text-sm font-medium rounded-full transition-colors text-[#E2F1E7] hover:bg-[#629584]"
-                onClick={handleLogout}
-              >
-                {item}
-              </button>
-            ) : (
-              <Link
-                to={item.toLowerCase()}
-                className="px-4 py-2 text-sm font-medium rounded-full transition-colors text-[#E2F1E7] hover:bg-[#629584]"
-              >
-                {item}
-              </Link>
-            )}
+            <button
+              className="px-4 py-2 text-sm font-medium rounded-full transition-colors text-[#E2F1E7] hover:bg-[#629584]"
+              onClick={() => item === 'Logout' ? handleLogout() : handleNavigation(item.toLowerCase())}
+            >
+              {item}
+            </button>
           </li>
         ))}
       </ul>
