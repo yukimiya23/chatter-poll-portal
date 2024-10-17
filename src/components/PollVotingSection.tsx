@@ -63,9 +63,9 @@ const PollVotingSection: React.FC<PollVotingSectionProps> = ({ currentPoll }) =>
     }
   };
 
-  const totalVotes = currentPoll.options.reduce((sum, opt) => sum + (opt.votes?.length || 0), 0);
-  const getPercentage = (votes: string[] | undefined) => {
-    return totalVotes > 0 ? Math.round(((votes?.length || 0) / totalVotes) * 100) : 0;
+  const totalVotes = currentPoll.options.reduce((sum, opt) => sum + opt.votes.length, 0);
+  const getPercentage = (votes: string[]) => {
+    return totalVotes > 0 ? Math.round((votes.length / totalVotes) * 100) : 0;
   };
 
   const COLORS = ['#243642', '#387478', '#629584', '#E2F1E7'];
@@ -85,7 +85,7 @@ const PollVotingSection: React.FC<PollVotingSectionProps> = ({ currentPoll }) =>
               style={{backgroundColor: COLORS[index % COLORS.length]}}
             />
             <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-[#243642] font-bold">
-              {option.votes?.length || 0} votes
+              {option.votes.length} votes
             </span>
           </div>
           <div className="flex space-x-2">
