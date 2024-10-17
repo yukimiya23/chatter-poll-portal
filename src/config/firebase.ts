@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
+import { getFirestore, connectFirestoreEmulator, initializeFirestore } from 'firebase/firestore';
 import { getDatabase, connectDatabaseEmulator } from 'firebase/database';
 import { getAuth, connectAuthEmulator } from 'firebase/auth';
 import { getFunctions, connectFunctionsEmulator } from 'firebase/functions';
@@ -16,18 +16,20 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app);
+
+// Initialize Firestore with settings
+export const db = initializeFirestore(app, {
+  experimentalForceLongPolling: true,
+});
+
 export const realtimeDb = getDatabase(app);
 export const auth = getAuth(app);
 export const functions = getFunctions(app);
 
 // Enable Firestore offline persistence
-import { enableIndexedDbPersistence, CACHE_SIZE_UNLIMITED } from "firebase/firestore";
+import { enableIndexedDbPersistence } from "firebase/firestore";
 
-enableIndexedDbPersistence(db, {
-  synchronizeTabs: true,
-  cacheSizeBytes: CACHE_SIZE_UNLIMITED
-}).catch((err) => {
+enableIndexedDbPersistence(db).catch((err) => {
   if (err.code == 'failed-precondition') {
     console.error('Multiple tabs open, persistence can only be enabled in one tab at a time.');
   } else if (err.code == 'unimplemented') {
@@ -42,11 +44,5 @@ if (process.env.NODE_ENV === 'development') {
   connectAuthEmulator(auth, 'http://localhost:9099');
   connectFunctionsEmulator(functions, 'localhost', 5001);
 }
-
-// Configure Firestore
-db.settings({
-  ignoreUndefinedProperties: true,
-  experimentalForceLongPolling: true,
-});
 
 export { app };
