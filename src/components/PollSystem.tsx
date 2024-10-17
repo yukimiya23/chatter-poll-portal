@@ -45,9 +45,9 @@ const PollSystem: React.FC<PollSystemProps> = ({ onClose }) => {
       </CardHeader>
       <CardContent>
         {showCreatePoll ? (
-          <PollCreationForm setShowCreatePoll={setShowCreatePoll} toast={toast} />
+          <PollCreationForm setShowCreatePoll={setShowCreatePoll} />
         ) : currentPoll && (
-          <PollVotingSection currentPoll={currentPoll} toast={toast} />
+          <PollVotingSection currentPoll={currentPoll} />
         )}
       </CardContent>
     </Card>
