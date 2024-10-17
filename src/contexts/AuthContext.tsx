@@ -41,21 +41,25 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
+        console.log("Firebase user detected:", firebaseUser.email);
         const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
         if (userDoc.exists()) {
           const userData = userDoc.data() as User;
+          console.log("User data from Firestore:", userData);
           setUser({
             ...userData,
             username: firebaseUser.email || '',
             isOnline: true,
           });
         } else {
+          console.log("No user document found in Firestore");
           setUser({
             username: firebaseUser.email || '',
             isOnline: true,
           });
         }
       } else {
+        console.log("No Firebase user detected");
         setUser(null);
       }
     });
@@ -65,10 +69,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const login = async (email: string, password: string) => {
     try {
+      console.log("Attempting login for:", email);
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      console.log("Login successful, user:", userCredential.user.email);
+      
       const userDoc = await getDoc(doc(db, 'users', userCredential.user.uid));
       if (userDoc.exists()) {
         const userData = userDoc.data() as User;
+        console.log("User data retrieved from Firestore:", userData);
         setUser({
           ...userData,
           username: email,
@@ -80,7 +88,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         });
         navigate('/');
       } else {
-        // If user document doesn't exist, redirect to user details
+        console.log("No user document found, redirecting to user details");
         setUser({
           username: email,
           isOnline: true,
@@ -98,7 +106,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         description: "Please check your credentials and try again.",
         variant: "destructive",
       });
-      throw error;
     }
   };
 
