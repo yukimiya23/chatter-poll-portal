@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth, db } from '../config/firebase';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { useToast } from "@/hooks/use-toast"
 
@@ -49,31 +49,37 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             username: firebaseUser.email || '',
             isOnline: true,
           });
-          navigate('/');
         } else {
           setUser({
             username: firebaseUser.email || '',
             isOnline: true,
           });
-          navigate('/user-details');
         }
       } else {
         setUser(null);
-        navigate('/login');
       }
     });
 
     return () => unsubscribe();
-  }, [navigate]);
+  }, []);
 
   const login = async (email: string, password: string) => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      // User state will be set by the onAuthStateChanged listener
+      const userDoc = await getDoc(doc(db, 'users', auth.currentUser!.uid));
+      if (userDoc.exists()) {
+        const userData = userDoc.data() as User;
+        setUser({
+          ...userData,
+          username: email,
+          isOnline: true,
+        });
+      }
       toast({
         title: "Logged in successfully",
         description: "Welcome back to the chat room!",
       });
+      navigate('/');
     } catch (error) {
       console.error('Login error:', error);
       toast({
@@ -88,11 +94,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const register = async (email: string, password: string) => {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      // User state will be set by the onAuthStateChanged listener
+      setUser({
+        username: email,
+        isOnline: true,
+      });
       toast({
         title: "Registered successfully",
         description: "Please complete your user details.",
       });
+      navigate('/user-details');
     } catch (error) {
       console.error('Registration error:', error);
       toast({
@@ -130,7 +140,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setUsers(prevUsers => prevUsers.map(u => u.username === user.username ? updatedUser : u));
       
       await setDoc(doc(db, 'users', auth.currentUser.uid), updatedUser);
-      navigate('/');
     }
   };
 
