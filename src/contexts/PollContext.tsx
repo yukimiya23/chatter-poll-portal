@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { db, realtimeDb } from '../config/firebase';
-import { ref, onValue, set, get } from 'firebase/database';
+import { ref, onValue, set, get, push } from 'firebase/database';
 import { collection, addDoc, doc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 
 interface PollOption {
@@ -58,8 +58,13 @@ export const PollProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         question,
         options: options.map(text => ({ text, votes: [] })),
       };
-      const docRef = await addDoc(collection(db, 'polls'), newPoll);
-      const pollWithId = { ...newPoll, id: docRef.id };
+      const pollsRef = ref(realtimeDb, 'polls');
+      const newPollRef = push(pollsRef);
+      const pollId = newPollRef.key;
+      if (!pollId) throw new Error('Failed to generate poll ID');
+      
+      const pollWithId = { ...newPoll, id: pollId };
+      await set(newPollRef, pollWithId);
       await set(ref(realtimeDb, 'currentPoll'), pollWithId);
       setCurrentPoll(pollWithId);
     } catch (error) {
@@ -70,16 +75,13 @@ export const PollProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const vote = async (pollId: string, optionIndex: number, username: string) => {
     try {
-      const pollRef = doc(db, 'polls', pollId);
-      await updateDoc(pollRef, {
-        [`options.${optionIndex}.votes`]: arrayUnion(username),
-      });
-      if (currentPoll) {
-        const updatedPoll = { ...currentPoll };
-        updatedPoll.options[optionIndex].votes.push(username);
-        await set(ref(realtimeDb, 'currentPoll'), updatedPoll);
-        setCurrentPoll(updatedPoll);
+      const pollRef = ref(realtimeDb, `polls/${pollId}/options/${optionIndex}/votes`);
+      const snapshot = await get(pollRef);
+      const currentVotes = snapshot.val() || [];
+      if (!currentVotes.includes(username)) {
+        await set(pollRef, [...currentVotes, username]);
       }
+      await fetchCurrentPoll(); // Refresh the current poll data
     } catch (error) {
       console.error("Error voting:", error);
       throw error;
@@ -88,16 +90,12 @@ export const PollProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const unvote = async (pollId: string, optionIndex: number, username: string) => {
     try {
-      const pollRef = doc(db, 'polls', pollId);
-      await updateDoc(pollRef, {
-        [`options.${optionIndex}.votes`]: arrayRemove(username),
-      });
-      if (currentPoll) {
-        const updatedPoll = { ...currentPoll };
-        updatedPoll.options[optionIndex].votes = updatedPoll.options[optionIndex].votes.filter(voter => voter !== username);
-        await set(ref(realtimeDb, 'currentPoll'), updatedPoll);
-        setCurrentPoll(updatedPoll);
-      }
+      const pollRef = ref(realtimeDb, `polls/${pollId}/options/${optionIndex}/votes`);
+      const snapshot = await get(pollRef);
+      const currentVotes = snapshot.val() || [];
+      const updatedVotes = currentVotes.filter((voter: string) => voter !== username);
+      await set(pollRef, updatedVotes);
+      await fetchCurrentPoll(); // Refresh the current poll data
     } catch (error) {
       console.error("Error unvoting:", error);
       throw error;
