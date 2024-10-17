@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { usePoll } from '../contexts/PollContext';
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,6 @@ interface PollVotingSectionProps {
 }
 
 const PollVotingSection: React.FC<PollVotingSectionProps> = ({ currentPoll }) => {
-  const [isVoting, setIsVoting] = useState(false);
   const { user } = useAuth();
   const { vote, unvote } = usePoll();
   const { toast } = useToast();
@@ -25,7 +24,6 @@ const PollVotingSection: React.FC<PollVotingSectionProps> = ({ currentPoll }) =>
 
   const handleVote = async (optionIndex: number) => {
     if (user && currentPoll) {
-      setIsVoting(true);
       try {
         await vote(currentPoll.id, optionIndex, user.username);
         toast({
@@ -39,15 +37,12 @@ const PollVotingSection: React.FC<PollVotingSectionProps> = ({ currentPoll }) =>
           description: "Failed to record your vote. Please try again.",
           variant: "destructive",
         });
-      } finally {
-        setIsVoting(false);
       }
     }
   };
 
   const handleUnvote = async (optionIndex: number) => {
     if (user && currentPoll) {
-      setIsVoting(true);
       try {
         await unvote(currentPoll.id, optionIndex, user.username);
         toast({
@@ -61,15 +56,13 @@ const PollVotingSection: React.FC<PollVotingSectionProps> = ({ currentPoll }) =>
           description: "Failed to remove your vote. Please try again.",
           variant: "destructive",
         });
-      } finally {
-        setIsVoting(false);
       }
     }
   };
 
-  const totalVotes = currentPoll.options.reduce((sum, opt) => sum + opt.votes.length, 0);
-  const getPercentage = (votes: string[]) => {
-    return totalVotes > 0 ? Math.round((votes.length / totalVotes) * 100) : 0;
+  const totalVotes = currentPoll.options.reduce((sum, opt) => sum + (opt.votes?.length || 0), 0);
+  const getPercentage = (votes: string[] | undefined) => {
+    return totalVotes > 0 ? Math.round(((votes?.length || 0) / totalVotes) * 100) : 0;
   };
 
   const COLORS = ['#243642', '#387478', '#629584', '#E2F1E7'];
@@ -89,7 +82,7 @@ const PollVotingSection: React.FC<PollVotingSectionProps> = ({ currentPoll }) =>
               style={{backgroundColor: COLORS[index % COLORS.length]}}
             />
             <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-[#243642] font-bold">
-              {option.votes.length} votes
+              {option.votes?.length || 0} votes
             </span>
           </div>
           <div className="flex space-x-2">
@@ -98,7 +91,6 @@ const PollVotingSection: React.FC<PollVotingSectionProps> = ({ currentPoll }) =>
               variant="outline" 
               size="sm" 
               className="bg-[#387478] text-[#E2F1E7] hover:bg-[#629584]"
-              disabled={isVoting}
             >
               Vote
             </Button>
@@ -107,7 +99,6 @@ const PollVotingSection: React.FC<PollVotingSectionProps> = ({ currentPoll }) =>
               variant="outline" 
               size="sm" 
               className="bg-[#E2F1E7] text-[#387478] hover:bg-[#629584]"
-              disabled={isVoting}
             >
               Unvote
             </Button>
