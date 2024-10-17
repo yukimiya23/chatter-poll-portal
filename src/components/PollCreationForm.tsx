@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { usePoll } from '../contexts/PollContext';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Toast } from "@/hooks/use-toast";
 
 interface PollCreationFormProps {
   setShowCreatePoll: (show: boolean) => void;
-  toast: (props: { title: string; description: string; variant?: string }) => void;
+  toast: (props: Toast) => void;
 }
 
 const PollCreationForm: React.FC<PollCreationFormProps> = ({ setShowCreatePoll, toast }) => {
