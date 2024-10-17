@@ -7,6 +7,14 @@ import Login from './components/Login';
 import UserDetails from './components/UserDetails';
 import ChatRoom from './components/ChatRoom';
 import UserList from './components/UserList';
+import { ErrorBoundary } from 'react-error-boundary';
+
+const ErrorFallback = ({ error }: { error: Error }) => (
+  <div role="alert">
+    <p>Something went wrong:</p>
+    <pre>{error.message}</pre>
+  </div>
+);
 
 const PrivateRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
   const { user } = useAuth();
@@ -19,13 +27,15 @@ const App: React.FC = () => {
       <AuthProvider>
         <ChatProvider>
           <PollProvider>
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/user-details" element={<PrivateRoute element={<UserDetails />} />} />
-              <Route path="/" element={<PrivateRoute element={<ChatRoom />} />} />
-              <Route path="/chat" element={<PrivateRoute element={<ChatRoom />} />} />
-              <Route path="/users" element={<PrivateRoute element={<UserList />} />} />
-            </Routes>
+            <ErrorBoundary FallbackComponent={ErrorFallback}>
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/user-details" element={<PrivateRoute element={<UserDetails />} />} />
+                <Route path="/" element={<PrivateRoute element={<ChatRoom />} />} />
+                <Route path="/chat" element={<PrivateRoute element={<ChatRoom />} />} />
+                <Route path="/users" element={<PrivateRoute element={<UserList />} />} />
+              </Routes>
+            </ErrorBoundary>
           </PollProvider>
         </ChatProvider>
       </AuthProvider>
