@@ -34,3 +34,20 @@ enableIndexedDbPersistence(db).catch((err) => {
     console.error('The current browser does not support all of the features required to enable persistence');
   }
 });
+
+// Note: The Realtime Database rules should be set in the Firebase Console
+// The rules you provided are:
+/*
+{
+  ".rules" : "auth != null",
+  ".write": "auth != null",
+  "messages": {
+    ".read": "auth != null",
+    ".write": "auth != null"
+  },
+  "polls": {
+    ".read": true,
+    ".write": true
+  }
+}
+*/
