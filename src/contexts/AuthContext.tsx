@@ -56,11 +56,21 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const register = async (email: string, password: string) => {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const newUser: AuthUser = { uid: userCredential.user.uid, email, username: email.split('@')[0], isOnline: true };
-    await setDoc(doc(db, 'users', newUser.uid), newUser);
-    setUser(newUser);
-    navigate('/user-details');
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const newUser: AuthUser = {
+        uid: userCredential.user.uid,
+        email: userCredential.user.email,
+        username: email.split('@')[0],
+        isOnline: true
+      };
+      await setDoc(doc(db, 'users', newUser.uid), newUser);
+      setUser(newUser);
+      navigate('/user-details');
+    } catch (error) {
+      console.error("Error during registration:", error);
+      throw error; // Re-throw the error so it can be handled by the component
+    }
   };
 
   const logout = async () => {
