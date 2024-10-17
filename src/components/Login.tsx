@@ -10,29 +10,28 @@ const Login: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const { login, register } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
     if (password.length < 8) {
-      setError('Password must be at least 8 characters long');
+      toast({
+        title: "Invalid Password",
+        description: "Password must be at least 8 characters long",
+        variant: "destructive",
+      });
       return;
     }
     try {
       if (isLogin) {
         await login(email, password);
-        // Navigation is handled in the login function
       } else {
         await register(email, password);
-        // Navigation is handled in the register function
       }
     } catch (err) {
       console.error('Authentication failed:', err);
-      setError(isLogin ? 'Login failed. Please check your credentials.' : 'Registration failed. Please try again.');
       toast({
         title: "Authentication Error",
         description: isLogin ? "Login failed. Please check your credentials." : "Registration failed. Please try again.",
@@ -70,7 +69,6 @@ const Login: React.FC = () => {
               className="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          {error && <p className="text-red-500 text-sm">{error}</p>}
           <Button type="submit" className="w-full py-2 px-4 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-md transition duration-200">
             {isLogin ? 'Login' : 'Register'}
           </Button>
