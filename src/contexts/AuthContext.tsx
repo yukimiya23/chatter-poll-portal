@@ -53,8 +53,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const login = async (email: string, password: string) => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      // User is signed in automatically by Firebase
-      navigate('/user-details');
+      navigate('/');
     } catch (error) {
       console.error('Login error:', error);
       throw error;
@@ -64,8 +63,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const register = async (email: string, password: string) => {
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-      // After registration, navigate to login page instead of user-details
-      navigate('/login');
+      // After successful registration, set the user and navigate to the chat room
+      setUser({
+        username: email,
+        isOnline: true,
+      });
+      navigate('/');
     } catch (error) {
       console.error('Registration error:', error);
       throw error;

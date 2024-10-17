@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { FaFacebookF, FaTwitter, FaGithub } from 'react-icons/fa';
+import { useToast } from "@/hooks/use-toast"
 
 const Login: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -12,6 +13,7 @@ const Login: React.FC = () => {
   const [error, setError] = useState('');
   const { login, register } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,10 +28,19 @@ const Login: React.FC = () => {
       } else {
         await register(email, password);
       }
-      navigate('/user-details');
+      toast({
+        title: isLogin ? "Logged in successfully" : "Registered successfully",
+        description: "Welcome to the chat room!",
+      });
+      // Navigation is now handled in the AuthContext
     } catch (err) {
       console.error('Authentication failed:', err);
       setError(isLogin ? 'Login failed. Please check your credentials.' : 'Registration failed. Please try again.');
+      toast({
+        title: "Authentication Error",
+        description: isLogin ? "Login failed. Please check your credentials." : "Registration failed. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
