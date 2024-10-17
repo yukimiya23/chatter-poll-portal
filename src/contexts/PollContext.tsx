@@ -4,8 +4,7 @@ import { collection, addDoc, onSnapshot, doc, updateDoc, arrayUnion, arrayRemove
 
 interface PollOption {
   text: string;
-  votes: number;
-  voters: string[];
+  votes: string[];
 }
 
 interface Poll {
@@ -49,12 +48,13 @@ export const PollProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     try {
       const newPoll: Omit<Poll, 'id'> & { timestamp: number } = {
         question,
-        options: options.map(text => ({ text, votes: 0, voters: [] })),
+        options: options.map(text => ({ text, votes: [] })),
         timestamp: Date.now(),
       };
       await addDoc(collection(db, 'polls'), newPoll);
     } catch (error) {
       console.error("Error creating poll:", error);
+      throw error;
     }
   };
 
@@ -63,10 +63,10 @@ export const PollProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const pollRef = doc(db, 'polls', pollId);
       await updateDoc(pollRef, {
         [`options.${optionIndex}.votes`]: arrayUnion(username),
-        [`options.${optionIndex}.voters`]: arrayUnion(username),
       });
     } catch (error) {
       console.error("Error voting:", error);
+      throw error;
     }
   };
 
@@ -75,10 +75,10 @@ export const PollProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const pollRef = doc(db, 'polls', pollId);
       await updateDoc(pollRef, {
         [`options.${optionIndex}.votes`]: arrayRemove(username),
-        [`options.${optionIndex}.voters`]: arrayRemove(username),
       });
     } catch (error) {
       console.error("Error unvoting:", error);
+      throw error;
     }
   };
 

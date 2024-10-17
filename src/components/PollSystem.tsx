@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { usePoll } from '../contexts/PollContext';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Progress } from "@/components/ui/progress"
-import { toast } from "@/components/ui/use-toast"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
+import { useToast } from "@/components/ui/use-toast";
 
 interface PollSystemProps {
   onClose: () => void;
@@ -18,6 +18,7 @@ const PollSystem: React.FC<PollSystemProps> = ({ onClose }) => {
   const { currentPoll, createPoll, vote, unvote } = usePoll();
   const [showCreatePoll, setShowCreatePoll] = useState(!currentPoll);
   const [isVoting, setIsVoting] = useState(false);
+  const { toast } = useToast();
 
   const handleCreatePoll = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -172,7 +173,7 @@ const PollSystem: React.FC<PollSystemProps> = ({ onClose }) => {
                     onClick={() => handleUnvote(index)} 
                     variant="outline" 
                     size="sm" 
-                    className="bg-[#387478] text-[#E2F1E7] hover:bg-[#629584]"
+                    className="bg-[#E2F1E7] text-[#387478] hover:bg-[#629584]"
                     disabled={isVoting}
                   >
                     Unvote
