@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Progress } from "@/components/ui/progress"
+import { toast } from "@/components/ui/use-toast"
 
 interface PollSystemProps {
   onClose: () => void;
@@ -16,33 +17,79 @@ const PollSystem: React.FC<PollSystemProps> = ({ onClose }) => {
   const { user } = useAuth();
   const { currentPoll, createPoll, vote, unvote } = usePoll();
   const [showCreatePoll, setShowCreatePoll] = useState(!currentPoll);
+  const [isVoting, setIsVoting] = useState(false);
 
   const handleCreatePoll = async (e: React.FormEvent) => {
     e.preventDefault();
     if (question && options.every(opt => opt.trim())) {
-      await createPoll(question, options);
-      setShowCreatePoll(false);
+      try {
+        await createPoll(question, options);
+        setShowCreatePoll(false);
+        toast({
+          title: "Poll Created",
+          description: "Your poll has been successfully created.",
+        });
+      } catch (error) {
+        console.error("Error creating poll:", error);
+        toast({
+          title: "Error",
+          description: "Failed to create poll. Please try again.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
   const handleVote = async (optionIndex: number) => {
     if (user && currentPoll) {
-      await vote(currentPoll.id, optionIndex, user.username);
+      setIsVoting(true);
+      try {
+        await vote(currentPoll.id, optionIndex, user.username);
+        toast({
+          title: "Vote Recorded",
+          description: "Your vote has been successfully recorded.",
+        });
+      } catch (error) {
+        console.error("Error voting:", error);
+        toast({
+          title: "Error",
+          description: "Failed to record your vote. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsVoting(false);
+      }
     }
   };
 
   const handleUnvote = async (optionIndex: number) => {
     if (user && currentPoll) {
-      await unvote(currentPoll.id, optionIndex, user.username);
+      setIsVoting(true);
+      try {
+        await unvote(currentPoll.id, optionIndex, user.username);
+        toast({
+          title: "Vote Removed",
+          description: "Your vote has been successfully removed.",
+        });
+      } catch (error) {
+        console.error("Error unvoting:", error);
+        toast({
+          title: "Error",
+          description: "Failed to remove your vote. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsVoting(false);
+      }
     }
   };
 
   const totalVotes = currentPoll
-    ? currentPoll.options.reduce((sum, opt) => sum + opt.votes, 0)
+    ? currentPoll.options.reduce((sum, opt) => sum + opt.votes.length, 0)
     : 0;
 
-  const getPercentage = (votes: number) => {
-    return totalVotes > 0 ? Math.round((votes / totalVotes) * 100) : 0;
+  const getPercentage = (votes: string[]) => {
+    return totalVotes > 0 ? Math.round((votes.length / totalVotes) * 100) : 0;
   };
 
   const COLORS = ['#243642', '#387478', '#629584', '#E2F1E7'];
@@ -108,14 +155,26 @@ const PollSystem: React.FC<PollSystemProps> = ({ onClose }) => {
                     style={{backgroundColor: COLORS[index % COLORS.length]}}
                   />
                   <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-[#243642] font-bold">
-                    {option.votes} votes
+                    {option.votes.length} votes
                   </span>
                 </div>
                 <div className="flex space-x-2">
-                  <Button onClick={() => handleVote(index)} variant="outline" size="sm" className="bg-[#387478] text-[#E2F1E7] hover:bg-[#629584]">
+                  <Button 
+                    onClick={() => handleVote(index)} 
+                    variant="outline" 
+                    size="sm" 
+                    className="bg-[#387478] text-[#E2F1E7] hover:bg-[#629584]"
+                    disabled={isVoting}
+                  >
                     Vote
                   </Button>
-                  <Button onClick={() => handleUnvote(index)} variant="outline" size="sm" className="bg-[#387478] text-[#E2F1E7] hover:bg-[#629584]">
+                  <Button 
+                    onClick={() => handleUnvote(index)} 
+                    variant="outline" 
+                    size="sm" 
+                    className="bg-[#387478] text-[#E2F1E7] hover:bg-[#629584]"
+                    disabled={isVoting}
+                  >
                     Unvote
                   </Button>
                 </div>
