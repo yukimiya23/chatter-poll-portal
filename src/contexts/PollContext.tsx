@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { db, realtimeDb } from '../config/firebase';
+import { realtimeDb } from '../config/firebase';
 import { ref, onValue, set, get, push, remove } from 'firebase/database';
 import { useAuth } from './AuthContext';
 
