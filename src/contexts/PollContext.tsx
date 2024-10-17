@@ -49,6 +49,7 @@ export const PollProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const docRef = await addDoc(collection(db, 'polls'), newPoll);
       const pollWithId = { ...newPoll, id: docRef.id };
       await set(ref(realtimeDb, 'currentPoll'), pollWithId);
+      setCurrentPoll(pollWithId);
     } catch (error) {
       console.error("Error creating poll:", error);
       throw error;
@@ -65,6 +66,7 @@ export const PollProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const updatedPoll = { ...currentPoll };
         updatedPoll.options[optionIndex].votes.push(username);
         await set(ref(realtimeDb, 'currentPoll'), updatedPoll);
+        setCurrentPoll(updatedPoll);
       }
     } catch (error) {
       console.error("Error voting:", error);
@@ -82,6 +84,7 @@ export const PollProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const updatedPoll = { ...currentPoll };
         updatedPoll.options[optionIndex].votes = updatedPoll.options[optionIndex].votes.filter(voter => voter !== username);
         await set(ref(realtimeDb, 'currentPoll'), updatedPoll);
+        setCurrentPoll(updatedPoll);
       }
     } catch (error) {
       console.error("Error unvoting:", error);

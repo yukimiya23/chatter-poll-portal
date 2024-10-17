@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { usePoll } from '../contexts/PollContext';
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Toast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 interface PollVotingSectionProps {
   currentPoll: {
@@ -11,13 +11,13 @@ interface PollVotingSectionProps {
     question: string;
     options: { text: string; votes: string[] }[];
   };
-  toast: (props: Toast) => void;
 }
 
-const PollVotingSection: React.FC<PollVotingSectionProps> = ({ currentPoll, toast }) => {
+const PollVotingSection: React.FC<PollVotingSectionProps> = ({ currentPoll }) => {
   const [isVoting, setIsVoting] = useState(false);
   const { user } = useAuth();
   const { vote, unvote } = usePoll();
+  const { toast } = useToast();
 
   const handleVote = async (optionIndex: number) => {
     if (user && currentPoll) {
