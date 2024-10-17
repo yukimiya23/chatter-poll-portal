@@ -41,27 +41,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        try {
-          const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
-          if (userDoc.exists()) {
-            const userData = userDoc.data() as User;
-            setUser({
-              ...userData,
-              username: firebaseUser.email || '',
-              isOnline: true,
-            });
-          } else {
-            setUser({
-              username: firebaseUser.email || '',
-              isOnline: true,
-            });
-          }
-        } catch (error) {
-          console.error('Error fetching user data:', error);
-          toast({
-            title: "Error",
-            description: "Failed to fetch user data. Please try logging in again.",
-            variant: "destructive",
+        const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data() as User;
+          setUser({
+            ...userData,
+            username: firebaseUser.email || '',
+            isOnline: true,
+          });
+        } else {
+          setUser({
+            username: firebaseUser.email || '',
+            isOnline: true,
           });
         }
       } else {
@@ -70,7 +61,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     });
 
     return () => unsubscribe();
-  }, [toast]);
+  }, []);
 
   const login = async (email: string, password: string) => {
     try {
@@ -148,16 +139,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setUser(updatedUser);
       setUsers(prevUsers => prevUsers.map(u => u.username === user.username ? updatedUser : u));
       
-      try {
-        await setDoc(doc(db, 'users', auth.currentUser.uid), updatedUser);
-      } catch (error) {
-        console.error('Error updating user details:', error);
-        toast({
-          title: "Update failed",
-          description: "Failed to update user details. Please try again.",
-          variant: "destructive",
-        });
-      }
+      await setDoc(doc(db, 'users', auth.currentUser.uid), updatedUser);
     }
   };
 
