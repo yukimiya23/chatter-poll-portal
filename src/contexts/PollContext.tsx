@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { db } from '../config/firebase';
-import { collection, addDoc, onSnapshot, doc, updateDoc, arrayUnion, arrayRemove, query, orderBy, limit } from 'firebase/firestore';
+import { db, realtimeDb } from '../config/firebase';
+import { ref, onValue, set } from 'firebase/database';
+import { collection, addDoc, doc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 
 interface PollOption {
   text: string;
@@ -26,32 +27,28 @@ export const PollProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [currentPoll, setCurrentPoll] = useState<Poll | null>(null);
 
   useEffect(() => {
-    const q = query(collection(db, 'polls'), orderBy('timestamp', 'desc'), limit(1));
-    const unsubscribe = onSnapshot(q, 
-      (snapshot) => {
-        if (!snapshot.empty) {
-          const pollDoc = snapshot.docs[0];
-          setCurrentPoll({ id: pollDoc.id, ...pollDoc.data() } as Poll);
-        } else {
-          setCurrentPoll(null);
-        }
-      },
-      (error) => {
-        console.error("Error in poll listener:", error);
+    const pollRef = ref(realtimeDb, 'currentPoll');
+    const unsubscribe = onValue(pollRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        setCurrentPoll(data);
+      } else {
+        setCurrentPoll(null);
       }
-    );
+    });
 
     return () => unsubscribe();
   }, []);
 
   const createPoll = async (question: string, options: string[]) => {
     try {
-      const newPoll: Omit<Poll, 'id'> & { timestamp: number } = {
+      const newPoll: Omit<Poll, 'id'> = {
         question,
         options: options.map(text => ({ text, votes: [] })),
-        timestamp: Date.now(),
       };
-      await addDoc(collection(db, 'polls'), newPoll);
+      const docRef = await addDoc(collection(db, 'polls'), newPoll);
+      const pollWithId = { ...newPoll, id: docRef.id };
+      await set(ref(realtimeDb, 'currentPoll'), pollWithId);
     } catch (error) {
       console.error("Error creating poll:", error);
       throw error;
@@ -64,6 +61,11 @@ export const PollProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       await updateDoc(pollRef, {
         [`options.${optionIndex}.votes`]: arrayUnion(username),
       });
+      if (currentPoll) {
+        const updatedPoll = { ...currentPoll };
+        updatedPoll.options[optionIndex].votes.push(username);
+        await set(ref(realtimeDb, 'currentPoll'), updatedPoll);
+      }
     } catch (error) {
       console.error("Error voting:", error);
       throw error;
@@ -76,6 +78,11 @@ export const PollProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       await updateDoc(pollRef, {
         [`options.${optionIndex}.votes`]: arrayRemove(username),
       });
+      if (currentPoll) {
+        const updatedPoll = { ...currentPoll };
+        updatedPoll.options[optionIndex].votes = updatedPoll.options[optionIndex].votes.filter(voter => voter !== username);
+        await set(ref(realtimeDb, 'currentPoll'), updatedPoll);
+      }
     } catch (error) {
       console.error("Error unvoting:", error);
       throw error;
