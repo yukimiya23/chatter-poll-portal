@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { auth } from '../config/firebase';
+import { auth, db } from '../config/firebase';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 interface User {
   username: string;
@@ -25,7 +26,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
-  updateUserDetails: (details: UserDetails) => void;
+  updateUserDetails: (details: UserDetails) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -36,12 +37,22 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const navigate = useNavigate();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        setUser({
-          username: firebaseUser.email || '',
-          isOnline: true,
-        });
+        const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data() as User;
+          setUser({
+            ...userData,
+            username: firebaseUser.email || '',
+            isOnline: true,
+          });
+        } else {
+          setUser({
+            username: firebaseUser.email || '',
+            isOnline: true,
+          });
+        }
       } else {
         setUser(null);
       }
@@ -62,8 +73,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const register = async (email: string, password: string) => {
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      // After successful registration, set the user and navigate to the user details page
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       setUser({
         username: email,
         isOnline: true,
@@ -84,11 +94,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const updateUserDetails = (details: UserDetails) => {
-    if (user) {
+  const updateUserDetails = async (details: UserDetails) => {
+    if (user && auth.currentUser) {
       const updatedUser = { ...user, ...details };
       setUser(updatedUser);
       setUsers(prevUsers => prevUsers.map(u => u.username === user.username ? updatedUser : u));
+      
+      // Save user details to Firestore
+      await setDoc(doc(db, 'users', auth.currentUser.uid), updatedUser);
     }
   };
 
