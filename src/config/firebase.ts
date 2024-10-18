@@ -19,6 +19,13 @@ export const db = getFirestore(app);
 export const realtimeDb = getDatabase(app);
 export const auth = getAuth(app);
 
+// Apply simplified database rules
+const simplifiedRules = JSON.parse(import.meta.env.VITE_FIREBASE_DATABASE_RULES);
+realtimeDb.useEmulator('localhost', 9000); // Use the emulator for local development
+realtimeDb.goOffline(); // Temporarily disconnect to apply rules
+realtimeDb.rules = simplifiedRules;
+realtimeDb.goOnline(); // Reconnect with new rules
+
 // Initialize Firebase
 if (!app.name) {
   initializeApp(firebaseConfig);
@@ -34,22 +41,3 @@ enableIndexedDbPersistence(db).catch((err) => {
     console.error('The current browser does not support all of the features required to enable persistence');
   }
 });
-
-// Note: The Realtime Database rules should be set in the Firebase Console
-// The rules you provided are:
-/*
-{
-  "rules": {
-    ".read": "auth != null",
-    ".write": "auth != null",
-    "messages": {
-      ".read": "auth != null",
-      ".write": "auth != null"
-    },
-    "polls": {
-      ".read": true,
-      ".write": true
-    }
-  }
-}
-*/

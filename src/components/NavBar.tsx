@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/use-toast"
@@ -11,7 +11,6 @@ interface NavBarProps {
 const NavBar: React.FC<NavBarProps> = ({ onPollClick }) => {
   const { logout } = useAuth();
   const { toast } = useToast();
-  const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
@@ -20,7 +19,6 @@ const NavBar: React.FC<NavBarProps> = ({ onPollClick }) => {
         title: "Logged out successfully",
         description: "You have been logged out of your account.",
       });
-      navigate('/login');
     } catch (error) {
       console.error('Logout error:', error);
       toast({
