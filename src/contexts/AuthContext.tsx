@@ -1,13 +1,13 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth, db } from '../config/firebase';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { useToast } from "@/hooks/use-toast"
 
 interface AuthUser {
   uid: string;
-  email: string;
+  email: string | null;
   username: string;
   isOnline: boolean;
   firstName?: string;
@@ -46,16 +46,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         console.log("Firebase user detected:", firebaseUser.email);
         const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
         if (userDoc.exists()) {
-          const userData = userDoc.data() as User;
+          const userData = userDoc.data() as AuthUser;
           console.log("User data from Firestore:", userData);
           setUser({
             ...userData,
-            username: firebaseUser.email || '',
+            uid: firebaseUser.uid,
+            email: firebaseUser.email,
+            username: userData.username || firebaseUser.email || '',
             isOnline: true,
           });
         } else {
           console.log("No user document found in Firestore");
           setUser({
+            uid: firebaseUser.uid,
+            email: firebaseUser.email,
             username: firebaseUser.email || '',
             isOnline: true,
           });
@@ -77,11 +81,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       
       const userDoc = await getDoc(doc(db, 'users', userCredential.user.uid));
       if (userDoc.exists()) {
-        const userData = userDoc.data() as User;
+        const userData = userDoc.data() as AuthUser;
         console.log("User data retrieved from Firestore:", userData);
         setUser({
           ...userData,
-          username: email,
+          uid: userCredential.user.uid,
+          email: userCredential.user.email,
+          username: userData.username || email,
           isOnline: true,
         });
         toast({
@@ -92,6 +98,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       } else {
         console.log("No user document found, redirecting to user details");
         setUser({
+          uid: userCredential.user.uid,
+          email: userCredential.user.email,
           username: email,
           isOnline: true,
         });
@@ -115,6 +123,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       setUser({
+        uid: userCredential.user.uid,
+        email: userCredential.user.email,
         username: email,
         isOnline: true,
       });
