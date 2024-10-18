@@ -33,7 +33,7 @@ const App: React.FC = () => {
                 <Route path="/user-details" element={<PrivateRoute element={<UserDetails />} />} />
                 <Route path="/" element={<PrivateRoute element={<ChatRoom />} />} />
                 <Route path="/chat" element={<PrivateRoute element={<ChatRoom />} />} />
-                <Route path="/users" element={<PrivateRoute element={<UserList />} />} />
+                <Route path="/users" element={<PrivateRoute element={<UserList onClose={() => {}} />} />} />
               </Routes>
             </ErrorBoundary>
           </PollProvider>

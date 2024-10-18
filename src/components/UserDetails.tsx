@@ -5,6 +5,13 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 
+interface UserDetailsProps {
+  firstName: string;
+  lastName: string;
+  nickname: string;
+  avatar: string | null;
+}
+
 const UserDetails: React.FC = () => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -16,7 +23,8 @@ const UserDetails: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    updateUserDetails({ firstName, lastName, nickname, avatar });
+    const userDetails: UserDetailsProps = { firstName, lastName, nickname, avatar };
+    updateUserDetails(userDetails);
     navigate('/');
   };
 

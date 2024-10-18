@@ -5,13 +5,15 @@ import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, on
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { useToast } from "@/hooks/use-toast"
 
-interface User {
+interface AuthUser {
+  uid: string;
+  email: string;
   username: string;
+  isOnline: boolean;
   firstName?: string;
   lastName?: string;
   nickname?: string;
   avatar?: string | null;
-  isOnline: boolean;
 }
 
 interface UserDetails {
@@ -22,8 +24,8 @@ interface UserDetails {
 }
 
 interface AuthContextType {
-  user: User | null;
-  users: User[];
+  user: AuthUser | null;
+  users: AuthUser[];
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -33,8 +35,8 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [users, setUsers] = useState<User[]>([]);
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [users, setUsers] = useState<AuthUser[]>([]);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -153,9 +155,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const updateUserDetails = async (details: UserDetails) => {
     if (user && auth.currentUser) {
-      const updatedUser = { ...user, ...details };
+      const updatedUser: AuthUser = {
+        ...user,
+        ...details,
+      };
       setUser(updatedUser);
-      setUsers(prevUsers => prevUsers.map(u => u.username === user.username ? updatedUser : u));
+      setUsers(prevUsers => prevUsers.map(u => u.uid === user.uid ? updatedUser : u));
       
       await setDoc(doc(db, 'users', auth.currentUser.uid), updatedUser);
       navigate('/');
