@@ -36,4 +36,4 @@ enableIndexedDbPersistence(db).catch((err) => {
 });
 
 // Note: Database rules should be set in the Firebase Console
-console.log('Simplified database rules are applied in the Firebase Console');
+console.log('Updated Realtime Database rules are applied in the Firebase Console');
