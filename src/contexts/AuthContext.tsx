@@ -1,19 +1,17 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth, db } from '../config/firebase';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { useToast } from "@/hooks/use-toast"
 
-interface AuthUser {
-  uid: string;
-  email: string | null;
+interface User {
   username: string;
-  isOnline: boolean;
   firstName?: string;
   lastName?: string;
   nickname?: string;
   avatar?: string | null;
+  isOnline: boolean;
 }
 
 interface UserDetails {
@@ -24,8 +22,8 @@ interface UserDetails {
 }
 
 interface AuthContextType {
-  user: AuthUser | null;
-  users: AuthUser[];
+  user: User | null;
+  users: User[];
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -35,8 +33,8 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [users, setUsers] = useState<AuthUser[]>([]);
+  const [user, setUser] = useState<User | null>(null);
+  const [users, setUsers] = useState<User[]>([]);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -46,20 +44,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         console.log("Firebase user detected:", firebaseUser.email);
         const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
         if (userDoc.exists()) {
-          const userData = userDoc.data() as AuthUser;
+          const userData = userDoc.data() as User;
           console.log("User data from Firestore:", userData);
           setUser({
             ...userData,
-            uid: firebaseUser.uid,
-            email: firebaseUser.email,
-            username: userData.username || firebaseUser.email || '',
+            username: firebaseUser.email || '',
             isOnline: true,
           });
         } else {
           console.log("No user document found in Firestore");
           setUser({
-            uid: firebaseUser.uid,
-            email: firebaseUser.email,
             username: firebaseUser.email || '',
             isOnline: true,
           });
@@ -81,13 +75,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       
       const userDoc = await getDoc(doc(db, 'users', userCredential.user.uid));
       if (userDoc.exists()) {
-        const userData = userDoc.data() as AuthUser;
+        const userData = userDoc.data() as User;
         console.log("User data retrieved from Firestore:", userData);
         setUser({
           ...userData,
-          uid: userCredential.user.uid,
-          email: userCredential.user.email,
-          username: userData.username || email,
+          username: email,
           isOnline: true,
         });
         toast({
@@ -98,8 +90,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       } else {
         console.log("No user document found, redirecting to user details");
         setUser({
-          uid: userCredential.user.uid,
-          email: userCredential.user.email,
           username: email,
           isOnline: true,
         });
@@ -123,8 +113,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       setUser({
-        uid: userCredential.user.uid,
-        email: userCredential.user.email,
         username: email,
         isOnline: true,
       });
@@ -165,12 +153,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const updateUserDetails = async (details: UserDetails) => {
     if (user && auth.currentUser) {
-      const updatedUser: AuthUser = {
-        ...user,
-        ...details,
-      };
+      const updatedUser = { ...user, ...details };
       setUser(updatedUser);
-      setUsers(prevUsers => prevUsers.map(u => u.uid === user.uid ? updatedUser : u));
+      setUsers(prevUsers => prevUsers.map(u => u.username === user.username ? updatedUser : u));
       
       await setDoc(doc(db, 'users', auth.currentUser.uid), updatedUser);
       navigate('/');
